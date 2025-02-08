@@ -11,8 +11,8 @@ const RandomRecommendation: React.FC = () => {
 
   if (!randomRecommendation) return null
 
-  const handleStartLearning = () => {
-    router.push(`/learn/${randomRecommendation.id}`)
+  const handleClick = () => {
+    router.push('/lyrics/betelgeuse_yuuri')
   }
 
   return (
@@ -53,7 +53,7 @@ const RandomRecommendation: React.FC = () => {
 
           {/* 학습 시작 버튼 */}
           <button
-            onClick={handleStartLearning}
+            onClick={handleClick} // 클릭 핸들러 추가
             className="bg-primary-500 text-white p-3 rounded-full hover:bg-primary-600 transition-colors"
           >
             <Play className="w-6 h-6" />

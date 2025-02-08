@@ -8,8 +8,9 @@ const PopularSongsList: React.FC = () => {
   const { popularSongs } = useSongStore()
   const router = useRouter()
 
-  const handleSongClick = (songId: number) => {
-    router.push(`/learn/${songId}`)
+  const handleSongClick = () => {
+    // 어떤 노래를 클릭하더라도 테스트용 곡의 ID로 이동
+    router.push('/lyrics/betelgeuse_yuuri')
   }
 
   return (
@@ -21,7 +22,7 @@ const PopularSongsList: React.FC = () => {
             key={song.id}
             whileHover={{ scale: 1.05 }}
             className="flex-shrink-0 w-48 cursor-pointer"
-            onClick={() => handleSongClick(song.id)}
+            onClick={handleSongClick} // 클릭 핸들러 추가
           >
             <div className="relative">
               <img
