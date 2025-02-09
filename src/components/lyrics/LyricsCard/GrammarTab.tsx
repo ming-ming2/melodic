@@ -7,6 +7,16 @@ interface GrammarTabProps {
 }
 
 export default function GrammarTab({ lyric }: GrammarTabProps) {
+  if (!lyric.grammar || lyric.grammar.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <p className="text-gray-500 text-sm">
+          이 가사에는 학습할 문법 요소가 없어요!
+        </p>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4">
       {lyric.grammar.map((grammar, index) => (

@@ -1,5 +1,5 @@
 // components/lyrics/LyricsCard/index.tsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 import TranslationTab from './TranslationTab'
@@ -29,6 +29,12 @@ export default function LyricsCard({
 }: LyricsCardProps) {
   const [activeTab, setActiveTab] = useState<TabType>('translation')
   const currentLyric = lyrics[currentIndex]
+
+  // 컴포넌트가 마운트될 때마다 초기화
+  useEffect(() => {
+    onIndexChange(0)
+    setActiveTab('translation')
+  }, [])
 
   const goToPrevious = () => {
     onIndexChange(Math.max(0, currentIndex - 1))

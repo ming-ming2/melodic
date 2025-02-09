@@ -27,3 +27,10 @@ export interface SongLyrics {
   youtube_id: string
   lyrics_analysis: LyricLine[]
 }
+
+// 추가된 부분
+export interface TimestampData {
+  start: number
+  end: number
+  confidence: number
+}

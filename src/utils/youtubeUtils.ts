@@ -1,31 +1,48 @@
 // utils/youtubeUtils.ts
-export interface Caption {
-  start: number
-  end: number
+import { LyricLine } from '@/types/lyrics'
+
+interface Caption {
+  start: string
+  dur: string
   text: string
-  language: string
 }
 
-export interface TimestampData {
-  start: number
-  end: number
-  confidence: number // 매칭 신뢰도
+interface TimedLyric extends LyricLine {
+  timestamp: {
+    start: number
+    end: number
+  }
+  similarity: number
 }
 
-// 문자열 유사도를 계산하는 함수 (Levenshtein Distance 기반)
-function calculateSimilarity(str1: string, str2: string): number {
+// YouTube 자막 가져오기
+export async function getVideoCaption(videoId: string): Promise<Caption[]> {
+  try {
+    const response = await fetch(`/api/captions/${videoId}`)
+    if (!response.ok) {
+      throw new Error('Failed to fetch captions')
+    }
+    return await response.json()
+  } catch (error) {
+    console.error('Error fetching captions:', error)
+    throw error
+  }
+}
+
+// Levenshtein Distance 계산 함수
+function calculateLevenshteinDistance(a: string, b: string): number {
   const matrix: number[][] = []
 
-  for (let i = 0; i <= str1.length; i++) {
+  for (let i = 0; i <= a.length; i++) {
     matrix[i] = [i]
   }
-  for (let j = 0; j <= str2.length; j++) {
+  for (let j = 0; j <= b.length; j++) {
     matrix[0][j] = j
   }
 
-  for (let i = 1; i <= str1.length; i++) {
-    for (let j = 1; j <= str2.length; j++) {
-      if (str1[i - 1] === str2[j - 1]) {
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      if (a[i - 1] === b[j - 1]) {
         matrix[i][j] = matrix[i - 1][j - 1]
       } else {
         matrix[i][j] = Math.min(
@@ -37,132 +54,112 @@ function calculateSimilarity(str1: string, str2: string): number {
     }
   }
 
-  const maxLength = Math.max(str1.length, str2.length)
-  return 1 - matrix[str1.length][str2.length] / maxLength
+  return matrix[a.length][b.length]
 }
 
-export async function getVideoCaption(videoId: string): Promise<Caption[]> {
-  try {
-    // YouTube Data API v3를 사용하여 자막 트랙 목록 가져오기
-    const listResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/captions?` +
-        `part=snippet&videoId=${videoId}&key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`
-    )
-
-    if (!listResponse.ok) {
-      throw new Error('Failed to fetch caption list')
-    }
-
-    const listData = await listResponse.json()
-
-    // 일본어 자막 찾기 (자동 생성된 자막도 포함)
-    const japaneseCaption = listData.items.find(
-      (item: any) =>
-        item.snippet.language === 'ja' || item.snippet.language === 'ja-JP'
-    )
-
-    if (!japaneseCaption) {
-      throw new Error('No Japanese captions found')
-    }
-
-    // 자막 내용 가져오기
-    const captionResponse = await fetch(
-      `https://www.googleapis.com/youtube/v3/captions/${japaneseCaption.id}?` +
-        `key=${process.env.NEXT_PUBLIC_YOUTUBE_API_KEY}`,
-      {
-        headers: {
-          Accept: 'application/json',
-        },
-      }
-    )
-
-    if (!captionResponse.ok) {
-      throw new Error('Failed to fetch caption content')
-    }
-
-    const captionData = await captionResponse.json()
-    return captionData.items.map((item: any) => ({
-      start: item.start,
-      end: item.end,
-      text: item.text,
-      language: japaneseCaption.snippet.language,
-    }))
-  } catch (error) {
-    console.error('Error fetching captions:', error)
-    throw error
-  }
+// 텍스트 정규화 함수
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[\u3000-\u303f\uff00-\uff9f]/g, '')
+    .trim()
 }
 
+// 문자열 유사도 계산
+function calculateSimilarity(str1: string, str2: string): number {
+  const normalized1 = normalizeText(str1)
+  const normalized2 = normalizeText(str2)
+  const maxLength = Math.max(normalized1.length, normalized2.length)
+  const distance = calculateLevenshteinDistance(normalized1, normalized2)
+  return 1 - distance / maxLength
+}
+
+// 가사와 자막 매칭
 export function matchLyricsWithCaptions(
-  lyrics: string[],
+  lyrics: LyricLine[],
   captions: Caption[]
-): TimestampData[] {
-  const timestamps: TimestampData[] = []
-  const usedCaptions = new Set<number>() // 이미 매칭된 자막 추적
+): TimedLyric[] {
+  const timedLyrics: TimedLyric[] = []
+  let lastEndTime = 0
+  let lastMatchedLyricIndex = -1
 
-  lyrics.forEach((lyric) => {
+  lyrics.forEach((lyric, lyricIndex) => {
+    // 이미 이전에 매칭된 가사가 없는 경우 건너뛰지 않도록
+    if (lastMatchedLyricIndex !== -1 && lyricIndex <= lastMatchedLyricIndex) {
+      return
+    }
+
     let bestMatch = {
-      index: -1,
+      caption: null as Caption | null,
       similarity: 0,
       start: 0,
       end: 0,
     }
 
-    // 각 가사와 가장 잘 매칭되는 자막 찾기
-    captions.forEach((caption, index) => {
-      if (usedCaptions.has(index)) return // 이미 매칭된 자막은 건너뛰기
+    // 이전 매칭된 시간 이후의 자막들만 검사
+    const relevantCaptions = captions.filter(
+      (cap) => Number(cap.start) >= lastEndTime
+    )
 
-      const similarity = calculateSimilarity(
-        lyric.toLowerCase().trim(),
-        caption.text.toLowerCase().trim()
-      )
+    relevantCaptions.forEach((caption) => {
+      const similarity = calculateSimilarity(lyric.original, caption.text)
 
-      if (similarity > bestMatch.similarity && similarity > 0.6) {
-        // 임계값 설정
-        bestMatch = {
-          index,
-          similarity,
-          start: caption.start,
-          end: caption.end,
+      // 개선된 매칭 로직: 부분 매칭도 고려
+      if (similarity >= 0.5 && similarity > bestMatch.similarity) {
+        // 현재 가사와 다음 가사의 부분 매칭 확인
+        const nextLyric = lyrics[lyricIndex + 1]
+        let nextLyricSimilarity = 0
+        if (nextLyric) {
+          nextLyricSimilarity = calculateSimilarity(
+            nextLyric.original,
+            caption.text
+          )
+        }
+
+        // 현재 가사가 더 잘 매칭되는 경우에만 선택
+        if (similarity > nextLyricSimilarity) {
+          bestMatch = {
+            caption,
+            similarity,
+            start: Number(caption.start),
+            end: Number(caption.start) + Number(caption.dur),
+          }
         }
       }
     })
 
-    if (bestMatch.index !== -1) {
-      usedCaptions.add(bestMatch.index)
-      timestamps.push({
-        start: bestMatch.start,
-        end: bestMatch.end,
-        confidence: bestMatch.similarity,
+    if (bestMatch.caption) {
+      const startTime = Number(bestMatch.caption.start)
+      const duration = Number(bestMatch.caption.dur)
+      const endTime = startTime + duration
+
+      lastEndTime = endTime
+      lastMatchedLyricIndex = lyricIndex
+      timedLyrics.push({
+        ...lyric,
+        timestamp: {
+          start: startTime,
+          end: endTime,
+        },
+        similarity: bestMatch.similarity,
       })
     } else {
-      // 매칭되는 자막이 없는 경우
-      const lastTimestamp = timestamps[timestamps.length - 1]
-      timestamps.push({
-        start: lastTimestamp ? lastTimestamp.end : 0,
-        end: lastTimestamp ? lastTimestamp.end + 3 : 3,
-        confidence: 0,
+      // 매칭되는 자막이 없는 경우 이전 타임스탬프 유지
+      const lastTimedLyric = timedLyrics[timedLyrics.length - 1]
+      timedLyrics.push({
+        ...lyric,
+        timestamp: lastTimedLyric
+          ? lastTimedLyric.timestamp
+          : {
+              start: lastEndTime,
+              end: lastEndTime + 3, // 기본 3초 유지
+            },
+        similarity: 0,
       })
+      lastEndTime += 3 // 기본 지속 시간 추가
     }
   })
 
-  return timestamps
-}
-
-// 자막이 없는 경우를 위한 폴백 함수
-export function generateDefaultTimestamps(
-  lyricsCount: number
-): TimestampData[] {
-  const timestamps: TimestampData[] = []
-  const defaultDuration = 3 // 각 가사당 기본 3초
-
-  for (let i = 0; i < lyricsCount; i++) {
-    timestamps.push({
-      start: i * defaultDuration,
-      end: (i + 1) * defaultDuration,
-      confidence: 0,
-    })
-  }
-
-  return timestamps
+  return timedLyrics
 }

@@ -454,95 +454,90 @@ export const SAMPLE_LYRICS: SongLyrics = {
     },
     {
       line_id: 19,
-      original: 'どこまで　いつまで　生きられるか',
-      translated: '어디까지, 언제까지 살아갈 수 있을까',
+      original: '何十回　何百回　ぶつかりあって',
+      translated: '몇십 번, 몇백 번 부딪히며',
       words: [
         {
-          word: '生きる (いきる)',
-          meaning: '살다',
-          example: '長く生きる (오래 살다.)',
+          word: '何十回 (なんじゅっかい)',
+          meaning: '수십 번',
+          example: '何十回も挑戦する (수십 번 도전하다.)',
+        },
+        {
+          word: 'ぶつかる',
+          meaning: '부딪히다, 충돌하다',
+          example: '壁にぶつかる (벽에 부딪히다.)',
         },
       ],
-      grammar: [],
+      grammar: [
+        {
+          pattern: '〜あって',
+          explanation: '서로 ~하다',
+          example: 'ぶつかりあって (서로 부딪히며)',
+        },
+      ],
       premium_only: false,
     },
     {
       line_id: 20,
-      original: '君が不安になるたびに強がるんだ',
-      translated: '네가 불안해질 때마다 강한 척하는 거야',
+      original: '何十年　何百年　昔の光が',
+      translated: '수십 년, 수백 년 전의 빛이',
       words: [
         {
-          word: '不安 (ふあん)',
-          meaning: '불안',
-          example: '将来が不安だ (미래가 불안하다.)',
+          word: '何百年 (なんびゃくねん)',
+          meaning: '수백 년',
+          example: '何百年も前の出来事 (수백 년 전의 사건)',
         },
         {
-          word: '強がる (つよがる)',
-          meaning: '강한 척하다',
-          example: '本当は怖いけど強がる (사실은 무섭지만 강한 척한다.)',
-        },
-      ],
-      grammar: [
-        {
-          pattern: '〜たびに',
-          explanation: '어떤 행동이 반복될 때마다',
-          example: '不安になるたびに (불안해질 때마다.)',
-        },
-      ],
-      premium_only: false,
-    },
-    {
-      line_id: 21,
-      original: '大丈夫　僕が横にいるよ',
-      translated: '괜찮아, 내가 옆에 있을게',
-      words: [
-        {
-          word: '大丈夫 (だいじょうぶ)',
-          meaning: '괜찮다',
-          example: '心配しないで、大丈夫だよ (걱정하지 마, 괜찮아.)',
+          word: '昔 (むかし)',
+          meaning: '옛날, 과거',
+          example: '昔の話をする (옛날 이야기를 하다.)',
         },
         {
-          word: '横 (よこ)',
-          meaning: '옆',
-          example: '彼の横に座る (그의 옆에 앉다.)',
-        },
-        {
-          word: 'いる',
-          meaning: '(사람, 동물이) 있다',
-          example: '友達がそばにいる (친구가 곁에 있다.)',
+          word: '光 (ひかり)',
+          meaning: '빛',
+          example: '太陽の光 (태양의 빛.)',
         },
       ],
       grammar: [],
       premium_only: false,
     },
     {
-      line_id: 22,
-      original: '見えない線を繋ごう',
-      translated: '보이지 않는 선을 이어가자',
+      line_id: 21,
+      original: '僕自身も忘れたころに',
+      translated: '나 자신조차도 잊어버릴 무렵에',
       words: [
         {
-          word: '見えない (みえない)',
-          meaning: '보이지 않는',
-          example: '暗くて道が見えない (어두워서 길이 보이지 않는다.)',
+          word: '自身 (じしん)',
+          meaning: '자신, 스스로',
+          example: '彼自身が決めたこと (그 자신이 결정한 일.)',
         },
         {
-          word: '線 (せん)',
-          meaning: '선, 라인',
-          example: '赤い線を引く (빨간 선을 긋다.)',
-        },
-        {
-          word: '繋ぐ (つなぐ)',
-          meaning: '잇다, 연결하다',
-          example: '手を繋ぐ (손을 잡다.)',
+          word: '忘れる (わすれる)',
+          meaning: '잊다',
+          example: '大切なことを忘れる (중요한 것을 잊다.)',
         },
       ],
       grammar: [
         {
-          pattern: '〜よう',
-          explanation: '권유형 (~하자)',
-          example: '繋ごう (이어가자.)',
+          pattern: '〜たころに',
+          explanation: '어떤 일이 발생할 무렵 (~했을 때)',
+          example: '忘れたころに (잊어버릴 무렵에.)',
         },
       ],
+      premium_only: false,
+    },
+    {
+      line_id: 22,
+      original: '僕らを照らしてる',
+      translated: '우리를 비추고 있어',
+      words: [
+        {
+          word: '照らす (てらす)',
+          meaning: '비추다',
+          example: '月が道を照らす (달이 길을 비춘다.)',
+        },
+      ],
+      grammar: [],
       premium_only: false,
     },
     {
@@ -605,6 +600,176 @@ export const SAMPLE_LYRICS: SongLyrics = {
     },
     {
       line_id: 26,
+      original: '誰かに繋ぐ魔法',
+      translated: '누군가에게 이어주는 마법',
+      words: [
+        {
+          word: '誰か (だれか)',
+          meaning: '누군가',
+          example: '誰かのために (누군가를 위해)',
+        },
+        {
+          word: '繋ぐ (つなぐ)',
+          meaning: '잇다, 연결하다',
+          example: '手を繋ぐ (손을 잡다)',
+        },
+      ],
+      grammar: [],
+      premium_only: false,
+    },
+    {
+      line_id: 27,
+      original: 'どこまで　いつまで　生きられるか',
+      translated: '어디까지, 언제까지 살아갈 수 있을까',
+      words: [
+        {
+          word: '生きる (いきる)',
+          meaning: '살다',
+          example: '長く生きる (오래 살다.)',
+        },
+      ],
+      grammar: [],
+      premium_only: false,
+    },
+    {
+      line_id: 28,
+      original: '君が不安になるたびに強がるんだ',
+      translated: '네가 불안해질 때마다 강한 척하는 거야',
+      words: [
+        {
+          word: '不安 (ふあん)',
+          meaning: '불안',
+          example: '将来が不安だ (미래가 불안하다.)',
+        },
+        {
+          word: '強がる (つよがる)',
+          meaning: '강한 척하다',
+          example: '本当は怖いけど強がる (사실은 무섭지만 강한 척한다.)',
+        },
+      ],
+      grammar: [
+        {
+          pattern: '〜たびに',
+          explanation: '어떤 행동이 반복될 때마다',
+          example: '不安になるたびに (불안해질 때마다.)',
+        },
+      ],
+      premium_only: false,
+    },
+    {
+      line_id: 29,
+      original: '大丈夫　僕が横にいるよ',
+      translated: '괜찮아, 내가 옆에 있을게',
+      words: [
+        {
+          word: '大丈夫 (だいじょうぶ)',
+          meaning: '괜찮다',
+          example: '心配しないで、大丈夫だよ (걱정하지 마, 괜찮아.)',
+        },
+        {
+          word: '横 (よこ)',
+          meaning: '옆',
+          example: '彼の横に座る (그의 옆에 앉다.)',
+        },
+        {
+          word: 'いる',
+          meaning: '(사람, 동물이) 있다',
+          example: '友達がそばにいる (친구가 곁에 있다.)',
+        },
+      ],
+      grammar: [],
+      premium_only: false,
+    },
+    {
+      line_id: 30,
+      original: '見えない線を繋ごう',
+      translated: '보이지 않는 선을 이어가자',
+      words: [
+        {
+          word: '見えない (みえない)',
+          meaning: '보이지 않는',
+          example: '暗くて道が見えない (어두워서 길이 보이지 않는다.)',
+        },
+        {
+          word: '線 (せん)',
+          meaning: '선, 라인',
+          example: '赤い線を引く (빨간 선을 긋다.)',
+        },
+        {
+          word: '繋ぐ (つなぐ)',
+          meaning: '잇다, 연결하다',
+          example: '手を繋ぐ (손을 잡다.)',
+        },
+      ],
+      grammar: [
+        {
+          pattern: '〜よう',
+          explanation: '권유형 (~하자)',
+          example: '繋ごう (이어가자.)',
+        },
+      ],
+      premium_only: false,
+    },
+    {
+      line_id: 31,
+      original: '僕ら見つけあって　手繰りあって　同じ空',
+      translated: '우리는 서로 찾아가며, 손을 잡고 같은 하늘 아래',
+      words: [
+        {
+          word: '手繰る (たぐる)',
+          meaning: '손으로 끌어당기다',
+          example: '糸を手繰る (실을 끌어당기다.)',
+        },
+      ],
+      grammar: [],
+      premium_only: false,
+    },
+    {
+      line_id: 32,
+      original: '輝くのだって　二人だって　約束した',
+      translated: '빛나는 것도, 둘이서도 약속했어',
+      words: [
+        {
+          word: '輝く (かがやく)',
+          meaning: '빛나다',
+          example: '星が輝く (별이 빛나다.)',
+        },
+        {
+          word: '約束 (やくそく)',
+          meaning: '약속',
+          example: '約束を守る (약속을 지키다.)',
+        },
+      ],
+      grammar: [],
+      premium_only: false,
+    },
+    {
+      line_id: 33,
+      original: '遥か遠く終わらないベテルギウス',
+      translated: '아득히 멀리 끝나지 않는 베텔기우스',
+      words: [
+        {
+          word: '遥か (はるか)',
+          meaning: '아득히, 멀리',
+          example: '遥か遠くの山 (아득히 먼 산)',
+        },
+        {
+          word: '終わらない (おわらない)',
+          meaning: '끝나지 않는',
+          example: '終わらない夜 (끝나지 않는 밤)',
+        },
+      ],
+      grammar: [
+        {
+          pattern: '〜ない',
+          explanation: '부정형 (~지 않다)',
+          example: '終わらない (끝나지 않는다)',
+        },
+      ],
+      premium_only: false,
+    },
+    {
+      line_id: 34,
       original: '君にも見えるだろう　祈りが',
       translated: '너도 보이겠지, 이 기도가',
       words: [
@@ -634,7 +799,7 @@ export const SAMPLE_LYRICS: SongLyrics = {
       premium_only: false,
     },
     {
-      line_id: 27,
+      line_id: 35,
       original: '空にある何かを見つめてたら',
       translated: '하늘에 있는 무언가를 바라보고 있으면',
       words: [
@@ -659,7 +824,7 @@ export const SAMPLE_LYRICS: SongLyrics = {
       premium_only: false,
     },
     {
-      line_id: 28,
+      line_id: 36,
       original: 'それは星だって君がおしえてくれた',
       translated: '그건 별이라고 네가 가르쳐 주었어',
       words: [

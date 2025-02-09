@@ -1,13 +1,14 @@
-// components/lyrics/YouTubePlayer/index.tsx
 import React, { useEffect, useRef, useState } from 'react'
-import { Repeat, Play, Pause, SkipBack, Volume2, VolumeX } from 'lucide-react'
+import { Repeat, Play, Pause, SkipBack } from 'lucide-react'
 
 interface YouTubePlayerProps {
   videoId: string
+  currentLyric: {
+    start: number
+    end: number
+  }
   onTimeUpdate?: (currentTime: number) => void
-  initialStartTime?: number
-  initialEndTime?: number
-  isRepeatMode?: boolean
+  isUserNavigation?: boolean
 }
 
 declare global {
@@ -26,57 +27,56 @@ declare global {
 
 export default function YouTubePlayer({
   videoId,
+  currentLyric,
   onTimeUpdate,
-  initialStartTime = 0,
-  initialEndTime,
-  isRepeatMode = false,
+  isUserNavigation = false,
 }: YouTubePlayerProps) {
   const playerRef = useRef<any>(null)
   const [isReady, setIsReady] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isRepeatOn, setIsRepeatOn] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [isMuted, setIsMuted] = useState(false)
   const timeCheckInterval = useRef<NodeJS.Timeout | null>(null)
+  const previousLyricRef = useRef(currentLyric)
 
-  // 반복 재생 구간
-  const [repeatSection, setRepeatSection] = useState({
-    start: initialStartTime,
-    end: initialEndTime || 0,
-  })
-
+  // YouTube API 초기화
   useEffect(() => {
-    // 새로운 시작/종료 시간이 주어지면 repeatSection 업데이트
-    setRepeatSection({
-      start: initialStartTime,
-      end: initialEndTime || 0,
-    })
-  }, [initialStartTime, initialEndTime])
+    if (!window.YT) {
+      const tag = document.createElement('script')
+      tag.src = 'https://www.youtube.com/iframe_api'
+      const firstScriptTag = document.getElementsByTagName('script')[0]
+      firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
+    }
 
-  useEffect(() => {
-    const tag = document.createElement('script')
-    tag.src = 'https://www.youtube.com/iframe_api'
-    const firstScriptTag = document.getElementsByTagName('script')[0]
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag)
-
-    window.onYouTubeIframeAPIReady = () => {
+    const initPlayer = () => {
       playerRef.current = new window.YT.Player('youtube-player', {
         videoId,
+        width: '100%',
+        height: '100%',
         playerVars: {
           autoplay: 0,
-          controls: 0, // 커스텀 컨트롤을 사용하기 위해 기본 컨트롤 비활성화
+          controls: 0,
           modestbranding: 1,
           rel: 0,
-          start: repeatSection.start,
+          enablejsapi: 1,
+          playsinline: 1,
+          origin: window.location.origin,
         },
         events: {
-          onReady: (event: any) => {
+          onReady: () => {
             setIsReady(true)
-            setDuration(event.target.getDuration())
+            playerRef.current.seekTo(currentLyric.start)
+            playerRef.current.pauseVideo()
           },
           onStateChange: handlePlayerStateChange,
         },
       })
+    }
+
+    if (window.YT?.Player) {
+      initPlayer()
+    } else {
+      window.onYouTubeIframeAPIReady = initPlayer
     }
 
     return () => {
@@ -89,17 +89,43 @@ export default function YouTubePlayer({
     }
   }, [videoId])
 
-  const handlePlayerStateChange = (event: any) => {
-    setIsPlaying(event.data === window.YT.PlayerState.PLAYING)
+  // 현재 가사 변경 시 동작
+  useEffect(() => {
+    if (!playerRef.current || !isReady) return
 
-    if (event.data === window.YT.PlayerState.PLAYING) {
-      startTimeCheck()
-    } else {
-      if (timeCheckInterval.current) {
-        clearInterval(timeCheckInterval.current)
+    const isDifferentLyric =
+      previousLyricRef.current.start !== currentLyric.start ||
+      previousLyricRef.current.end !== currentLyric.end
+
+    if (isDifferentLyric) {
+      console.log('🔄 가사 업데이트됨:', currentLyric)
+
+      // 🚀 최신 가사 값으로 업데이트
+      previousLyricRef.current = currentLyric
+    }
+
+    // 사용자 네비게이션일 때만 seekTo와 playVideo 실행
+    if (isUserNavigation) {
+      playerRef.current.seekTo(currentLyric.start)
+
+      // 재생 중이었다면 계속 재생
+      if (isPlaying) {
+        playerRef.current.playVideo()
       }
     }
-  }
+  }, [currentLyric, isUserNavigation, isReady])
+
+  const currentLyricRef = useRef(currentLyric)
+  const isRepeatOnRef = useRef(isRepeatOn)
+
+  // useEffect를 사용해 isRepeatOn이 변경될 때마다 ref 업데이트
+  useEffect(() => {
+    isRepeatOnRef.current = isRepeatOn
+  }, [isRepeatOn])
+  // useEffect를 사용해 currentLyric이 변경될 때마다 ref 업데이트
+  useEffect(() => {
+    currentLyricRef.current = currentLyric
+  }, [currentLyric])
 
   const startTimeCheck = () => {
     if (timeCheckInterval.current) {
@@ -107,22 +133,37 @@ export default function YouTubePlayer({
     }
 
     timeCheckInterval.current = setInterval(() => {
-      if (playerRef.current) {
-        const time = playerRef.current.getCurrentTime()
-        setCurrentTime(time)
-        onTimeUpdate?.(time)
+      if (!playerRef.current) return
 
-        // 반복 재생 체크
-        if (
-          isRepeatMode &&
-          repeatSection.end > 0 &&
-          time >= repeatSection.end
-        ) {
-          playerRef.current.seekTo(repeatSection.start)
-          playerRef.current.playVideo()
-        }
+      const time = playerRef.current.getCurrentTime()
+      setCurrentTime(time)
+      onTimeUpdate?.(time)
+
+      // // 로그 추가
+      // console.log('Current Time:', time)
+      // console.log('Lyric End Time:', currentLyricRef.current.end)
+      // console.log('Is Repeat On:', isRepeatOnRef.current) // isRepeatOn 대신 isRepeatOnRef.current 사용
+
+      // 현재 가사 구간 끝나기 0.1초 전에 되감기
+      if (isRepeatOnRef.current && time >= currentLyricRef.current.end - 0.2) {
+        console.log('Attempting to restart - Repeat Mode ON')
+        handleRestart()
       }
-    }, 100)
+    }, 50)
+  }
+
+  const handlePlayerStateChange = (event: any) => {
+    const playerState = event.data
+
+    setIsPlaying(playerState === window.YT.PlayerState.PLAYING)
+
+    if (playerState === window.YT.PlayerState.PLAYING) {
+      startTimeCheck()
+    } else {
+      if (timeCheckInterval.current) {
+        clearInterval(timeCheckInterval.current)
+      }
+    }
   }
 
   const togglePlay = () => {
@@ -135,40 +176,25 @@ export default function YouTubePlayer({
     }
   }
 
-  const restartSection = () => {
+  const handleRestart = () => {
     if (!playerRef.current) return
-    playerRef.current.seekTo(repeatSection.start)
-    playerRef.current.playVideo()
+    playerRef.current.seekTo(currentLyric.start)
+    if (!isPlaying) {
+      playerRef.current.playVideo()
+    }
   }
 
-  const toggleMute = () => {
-    if (!playerRef.current) return
-    if (isMuted) {
-      playerRef.current.unMute()
-    } else {
-      playerRef.current.mute()
-    }
-    setIsMuted(!isMuted)
+  const toggleRepeat = () => {
+    // console.log('Repeat button clicked')
+    // console.log('Current isRepeatOn:', !isRepeatOn)
+    setIsRepeatOn(!isRepeatOn)
   }
 
   return (
     <div className="relative group">
-      {/* YouTube Player */}
       <div id="youtube-player" className="w-full aspect-video" />
 
-      {/* Controls Overlay - hover시에만 표시 */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-        {/* Progress Bar */}
-        <div className="absolute bottom-12 left-0 right-0 px-4">
-          <div className="h-1 bg-gray-600 rounded-full">
-            <div
-              className="h-full bg-accent-500 rounded-full"
-              style={{ width: `${(currentTime / duration) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Control Buttons */}
         <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button
@@ -181,35 +207,25 @@ export default function YouTubePlayer({
                 <Play className="w-5 h-5 text-white" />
               )}
             </button>
+
             <button
-              onClick={restartSection}
+              onClick={handleRestart}
               className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             >
               <SkipBack className="w-5 h-5 text-white" />
             </button>
+
             <button
+              onClick={toggleRepeat}
               className={`p-2 rounded-full ${
-                isRepeatMode ? 'bg-accent-600' : 'bg-white/10 hover:bg-white/20'
+                isRepeatOn ? 'bg-accent-600' : 'bg-white/10 hover:bg-white/20'
               } transition-colors`}
             >
               <Repeat className="w-5 h-5 text-white" />
             </button>
-            <button
-              onClick={toggleMute}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-            >
-              {isMuted ? (
-                <VolumeX className="w-5 h-5 text-white" />
-              ) : (
-                <Volume2 className="w-5 h-5 text-white" />
-              )}
-            </button>
           </div>
 
-          {/* Time Display */}
-          <div className="text-sm text-white/80">
-            {formatTime(currentTime)} / {formatTime(duration)}
-          </div>
+          <div className="text-sm text-white/80">{formatTime(currentTime)}</div>
         </div>
       </div>
     </div>
