@@ -770,36 +770,95 @@ export const SAMPLE_LYRICS: SongLyrics = {
     },
     {
       line_id: 34,
-      original: '君にも見えるだろう　祈りが',
-      translated: '너도 보이겠지, 이 기도가',
+      original: '誰かに繋ぐ魔法',
+      translated: '누군가에게 이어주는 마법',
       words: [
         {
-          word: '君 (きみ)',
-          meaning: '너',
-          example: '君の名前は何？ (너의 이름은 뭐야?)',
+          word: '誰か (だれか)',
+          meaning: '누군가',
+          example: '誰かのために (누군가를 위해)',
         },
         {
-          word: '見える (みえる)',
-          meaning: '보이다',
-          example: '星が見える (별이 보인다.)',
+          word: '繋ぐ (つなぐ)',
+          meaning: '잇다, 연결하다',
+          example: '手を繋ぐ (손을 잡다)',
         },
+      ],
+      grammar: [],
+      premium_only: false,
+    },
+    {
+      line_id: 35,
+      original: '僕ら肩並べ 手取り合って 進んでく',
+      translated: '우리는 나란히 서서, 손을 맞잡고 나아가',
+      words: [
+        {
+          word: '肩並べ (かたならべ)',
+          meaning: '어깨를 나란히 함',
+          example: '友達と肩を並べる (친구와 어깨를 나란히 하다)',
+        },
+        {
+          word: '進む (すすむ)',
+          meaning: '나아가다',
+          example: '未来へ進む (미래로 나아가다)',
+        },
+      ],
+      grammar: [
+        {
+          pattern: '〜てく',
+          explanation: '진행형 (~해 나가다)',
+          example: '進んでく (나아가다)',
+        },
+      ],
+      premium_only: false,
+    },
+    {
+      line_id: 36,
+      original: '辛い時だっ 二人だって 誓っただろう',
+      translated: '힘들 때라도 둘이 있자고 맹세했잖아',
+      words: [
+        {
+          word: '辛い (つらい)',
+          meaning: '괴로운, 힘든',
+          example: '辛い思い出 (괴로운 추억)',
+        },
+        {
+          word: '誓う (ちかう)',
+          meaning: '맹세하다',
+          example: '永遠を誓う (영원을 맹세하다)',
+        },
+      ],
+      grammar: [
+        {
+          pattern: '〜だって',
+          explanation: '강조 (~라도)',
+          example: '辛い時だって (힘들 때라도)',
+        },
+      ],
+      premium_only: false,
+    },
+    {
+      line_id: 37,
+      original: '遥か遠く終わらないベテルギウス 君にも見えるだろう 祈りが',
+      translated: '아득히 멀리 끝나지 않는 베텔기우스, 너도 보이겠지 기도가',
+      words: [
         {
           word: '祈り (いのり)',
           meaning: '기도',
-          example: '平和を祈る (평화를 기도하다.)',
+          example: '平和を祈る (평화를 기도하다)',
         },
       ],
       grammar: [
         {
           pattern: '〜だろう',
           explanation: '추측 (~겠지)',
-          example: '見えるだろう (보이겠지.)',
+          example: '見えるだろう (보이겠지)',
         },
       ],
       premium_only: false,
     },
     {
-      line_id: 35,
+      line_id: 38,
       original: '空にある何かを見つめてたら',
       translated: '하늘에 있는 무언가를 바라보고 있으면',
       words: [
@@ -824,7 +883,7 @@ export const SAMPLE_LYRICS: SongLyrics = {
       premium_only: false,
     },
     {
-      line_id: 36,
+      line_id: 39,
       original: 'それは星だって君がおしえてくれた',
       translated: '그건 별이라고 네가 가르쳐 주었어',
       words: [

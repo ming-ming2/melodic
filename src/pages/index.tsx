@@ -2,21 +2,14 @@
 import React, { useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Head from 'next/head'
-import NavigationBar from '@/components/common/NavigationBar'
+import AppLayout from '@/components/common/AppLayout'
 import SearchBar from '@/components/home/SearchBar'
-import TutorialBanner from '@/components/home/TutorialBanner'
 import RandomRecommendation from '@/components/home/RandomRecommendation'
 import PopularSongsList from '@/components/home/PopularSongsList'
 import RecentLearningList from '@/components/home/RecentLearningList'
 import useSongStore from '@/stores/songStore'
-import useAuthStore from '@/stores/authStore'
-import useOnboardingStore from '@/stores/onboardingStore'
 
-const HomePage: React.FC = () => {
-  const { isAuthenticated, user } = useAuthStore()
-  const { hasSeenTutorial } = useOnboardingStore()
-  const recentLearnings = useSongStore((state) => state.recentLearnings)
-
+export default function HomePage() {
   useEffect(() => {
     useSongStore.getState().initialize()
   }, [])
@@ -25,79 +18,49 @@ const HomePage: React.FC = () => {
     <>
       <Head>
         <title>Melodic - 음악으로 배우는 새로운 언어</title>
+        <meta name="theme-color" content="#111827" />
         <meta
-          name="description"
-          content="좋아하는 노래로 즐겁게 새로운 언어를 배워보세요."
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <div className="min-h-screen bg-gray-950">
-        <NavigationBar />
-        <div className="max-w-4xl mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-6 py-4"
-          >
-            <SearchBar />
-
-            {!isAuthenticated && !hasSeenTutorial && <TutorialBanner />}
-
-            <section>
-              <h2 className="text-xl font-bold text-white mb-4">
-                🎵 오늘의 추천곡
-              </h2>
-              <RandomRecommendation />
-            </section>
-
-            <section>
-              <div className="flex justify-between items-center mb-4">
-                {isAuthenticated && (
-                  <button className="text-gray-400 hover:text-white transition-colors text-sm">
-                    더보기
-                  </button>
-                )}
-              </div>
-              <PopularSongsList />
-            </section>
-
-            {isAuthenticated && (
-              <section>
-                <div className="flex justify-between items-center mb-4">
-                  {recentLearnings.length > 0 && (
-                    <button className="text-gray-400 hover:text-white transition-colors text-sm">
-                      전체보기
-                    </button>
-                  )}
-                </div>
-                <RecentLearningList />
-              </section>
-            )}
-          </motion.div>
-        </div>
-
-        <footer className="border-t border-gray-800 mt-16">
-          <div className="max-w-4xl mx-auto px-4 py-8">
-            <div className="text-center text-gray-400 text-sm">
-              <p>© 2024 Melodic. All rights reserved.</p>
-              <div className="mt-2 space-x-4">
-                <a href="#" className="hover:text-white transition-colors">
-                  이용약관
-                </a>
-                <span>|</span>
-                <a href="#" className="hover:text-white transition-colors">
-                  개인정보처리방침
-                </a>
-              </div>
+      <AppLayout>
+        <div className="px-4 py-3 space-y-6">
+          {/* 검색 */}
+          <div className="sticky top-14 z-10">
+            <div className="pt-2 pb-3 bg-transparent">
+              <SearchBar />
             </div>
           </div>
-        </footer>
-      </div>
+
+          {/* 오늘의 추천곡 */}
+          <section>
+            <h2 className="text-lg font-bold text-white mb-3">오늘의 추천곡</h2>
+            <RandomRecommendation />
+          </section>
+
+          {/* 인기 노래 */}
+          <section>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold text-white">인기 노래</h2>
+              <button className="text-sm text-gray-400">더보기</button>
+            </div>
+            <div className="-mx-4">
+              <PopularSongsList />
+            </div>
+          </section>
+
+          {/* 최근 학습한 노래 */}
+          <section>
+            <div className="flex justify-between items-center mb-3">
+              <h2 className="text-lg font-bold text-white">최근 학습</h2>
+              <button className="text-sm text-gray-400">전체보기</button>
+            </div>
+            <RecentLearningList />
+          </section>
+        </div>
+      </AppLayout>
     </>
   )
 }
-
-export default HomePage

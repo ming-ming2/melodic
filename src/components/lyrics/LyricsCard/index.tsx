@@ -16,10 +16,10 @@ interface LyricsCardProps {
 type TabType = 'translation' | 'vocabulary' | 'grammar' | 'expression'
 
 const tabData = [
-  { id: 'translation', label: '번역', icon: '📜', premium: false },
-  { id: 'vocabulary', label: '단어', icon: '📚', premium: false },
-  { id: 'grammar', label: '문법', icon: '📖', premium: false },
-  { id: 'expression', label: '표현 분석', icon: '🎶', premium: true },
+  { id: 'translation', label: '번역', icon: '📜' },
+  { id: 'vocabulary', label: '단어', icon: '📚' },
+  { id: 'grammar', label: '문법', icon: '📖' },
+  { id: 'expression', label: '표현', icon: '🎶', premium: true },
 ] as const
 
 export default function LyricsCard({
@@ -30,21 +30,71 @@ export default function LyricsCard({
   const [activeTab, setActiveTab] = useState<TabType>('translation')
   const currentLyric = lyrics[currentIndex]
 
-  // 컴포넌트가 마운트될 때마다 초기화
-  useEffect(() => {
-    onIndexChange(0)
-    setActiveTab('translation')
-  }, [])
-
-  const goToPrevious = () => {
-    onIndexChange(Math.max(0, currentIndex - 1))
+  const handleSwipe = (direction: 'left' | 'right') => {
+    if (direction === 'left' && currentIndex < lyrics.length - 1) {
+      onIndexChange(currentIndex + 1)
+    } else if (direction === 'right' && currentIndex > 0) {
+      onIndexChange(currentIndex - 1)
+    }
   }
 
-  const goToNext = () => {
-    onIndexChange(Math.min(lyrics.length - 1, currentIndex + 1))
-  }
+  return (
+    <div className="h-full flex flex-col bg-gray-900">
+      {/* 가사 내용 */}
+      <div className="p-4 flex-shrink-0">
+        <p className="text-xl font-medium text-white mb-2">
+          {currentLyric.original}
+        </p>
+        <p className="text-gray-400">{currentLyric.translated}</p>
+      </div>
 
-  const renderTabContent = () => {
+      {/* 탭 버튼 */}
+      <div className="px-4 grid grid-cols-4 gap-2 border-t border-b border-gray-800">
+        {tabData.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`py-3 flex flex-col items-center justify-center ${
+              activeTab === tab.id
+                ? 'text-accent-500 border-b-2 border-accent-500'
+                : 'text-gray-400'
+            }`}
+          >
+            <span className="text-lg mb-1">{tab.icon}</span>
+            <span className="text-xs">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* 탭 컨텐츠 */}
+      <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
+
+      {/* 네비게이션 버튼 */}
+      <div className="flex justify-between items-center p-4 border-t border-gray-800">
+        <button
+          onClick={() => handleSwipe('right')}
+          disabled={currentIndex === 0}
+          className="p-2 rounded-full bg-gray-800 disabled:opacity-50"
+        >
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </button>
+
+        <div className="text-sm text-gray-400">
+          {currentIndex + 1} / {lyrics.length}
+        </div>
+
+        <button
+          onClick={() => handleSwipe('left')}
+          disabled={currentIndex === lyrics.length - 1}
+          className="p-2 rounded-full bg-gray-800 disabled:opacity-50"
+        >
+          <ChevronRight className="w-6 h-6 text-white" />
+        </button>
+      </div>
+    </div>
+  )
+
+  function renderTabContent() {
     switch (activeTab) {
       case 'translation':
         return <TranslationTab lyric={currentLyric} />
@@ -58,63 +108,4 @@ export default function LyricsCard({
         return null
     }
   }
-
-  return (
-    <div className="bg-gray-800 rounded-xl p-6">
-      {/* 네비게이션 */}
-      <div className="flex justify-between items-center mb-6">
-        <button
-          onClick={goToPrevious}
-          disabled={currentIndex === 0}
-          className="p-2 hover:bg-gray-700 rounded-full disabled:opacity-50 transition-colors"
-        >
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
-
-        <div className="text-center text-gray-400 text-sm">
-          {currentIndex + 1} / {lyrics.length}
-        </div>
-
-        <button
-          onClick={goToNext}
-          disabled={currentIndex === lyrics.length - 1}
-          className="p-2 hover:bg-gray-700 rounded-full disabled:opacity-50 transition-colors"
-        >
-          <ChevronRight className="w-6 h-6 text-white" />
-        </button>
-      </div>
-
-      {/* 현재 가사 */}
-      <div className="mb-6">
-        <p className="text-xl font-medium text-white mb-2">
-          {currentLyric.original}
-        </p>
-        <p className="text-gray-400">{currentLyric.translated}</p>
-      </div>
-
-      {/* 탭 네비게이션 */}
-      <div className="flex space-x-1 mb-4">
-        {tabData.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
-              activeTab === tab.id
-                ? 'bg-accent-600 text-white'
-                : 'text-gray-400 hover:bg-gray-700'
-            } transition-colors`}
-          >
-            <span className="mr-2">{tab.icon}</span>
-            {tab.label}
-            {tab.premium && (
-              <span className="ml-1 text-xs text-yellow-500">PRO</span>
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* 탭 콘텐츠 */}
-      <div className="bg-gray-700 rounded-lg p-4">{renderTabContent()}</div>
-    </div>
-  )
 }

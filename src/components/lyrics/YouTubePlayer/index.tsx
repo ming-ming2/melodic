@@ -139,7 +139,7 @@ export default function YouTubePlayer({
       setCurrentTime(time)
       onTimeUpdate?.(time)
 
-      // // 로그 추가
+      // 로그 추가
       // console.log('Current Time:', time)
       // console.log('Lyric End Time:', currentLyricRef.current.end)
       // console.log('Is Repeat On:', isRepeatOnRef.current) // isRepeatOn 대신 isRepeatOnRef.current 사용
@@ -178,7 +178,7 @@ export default function YouTubePlayer({
 
   const handleRestart = () => {
     if (!playerRef.current) return
-    playerRef.current.seekTo(currentLyric.start)
+    playerRef.current.seekTo(currentLyricRef.current.start)
     if (!isPlaying) {
       playerRef.current.playVideo()
     }

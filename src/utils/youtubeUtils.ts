@@ -81,83 +81,64 @@ export function matchLyricsWithCaptions(
   captions: Caption[]
 ): TimedLyric[] {
   const timedLyrics: TimedLyric[] = []
+  let captionIndex = 0
   let lastEndTime = 0
-  let lastMatchedLyricIndex = -1
 
-  lyrics.forEach((lyric, lyricIndex) => {
-    // 이미 이전에 매칭된 가사가 없는 경우 건너뛰지 않도록
-    if (lastMatchedLyricIndex !== -1 && lyricIndex <= lastMatchedLyricIndex) {
-      return
-    }
+  lyrics.forEach((lyric) => {
+    let combinedText = ''
+    let startTime = 0
+    let endTime = 0
+    let initialCaptionIndex = captionIndex
+    let matched = false
 
-    let bestMatch = {
-      caption: null as Caption | null,
-      similarity: 0,
-      start: 0,
-      end: 0,
-    }
+    while (captionIndex < captions.length) {
+      const currentCaption = captions[captionIndex]
 
-    // 이전 매칭된 시간 이후의 자막들만 검사
-    const relevantCaptions = captions.filter(
-      (cap) => Number(cap.start) >= lastEndTime
-    )
-
-    relevantCaptions.forEach((caption) => {
-      const similarity = calculateSimilarity(lyric.original, caption.text)
-
-      // 개선된 매칭 로직: 부분 매칭도 고려
-      if (similarity >= 0.5 && similarity > bestMatch.similarity) {
-        // 현재 가사와 다음 가사의 부분 매칭 확인
-        const nextLyric = lyrics[lyricIndex + 1]
-        let nextLyricSimilarity = 0
-        if (nextLyric) {
-          nextLyricSimilarity = calculateSimilarity(
-            nextLyric.original,
-            caption.text
-          )
-        }
-
-        // 현재 가사가 더 잘 매칭되는 경우에만 선택
-        if (similarity > nextLyricSimilarity) {
-          bestMatch = {
-            caption,
-            similarity,
-            start: Number(caption.start),
-            end: Number(caption.start) + Number(caption.dur),
-          }
-        }
+      if (combinedText === '') {
+        startTime = Number(currentCaption.start)
       }
-    })
 
-    if (bestMatch.caption) {
-      const startTime = Number(bestMatch.caption.start)
-      const duration = Number(bestMatch.caption.dur)
-      const endTime = startTime + duration
+      combinedText += combinedText
+        ? ' ' + currentCaption.text
+        : currentCaption.text
+      endTime = Number(currentCaption.start) + Number(currentCaption.dur)
 
-      lastEndTime = endTime
-      lastMatchedLyricIndex = lyricIndex
+      const similarity = calculateSimilarity(lyric.original, combinedText)
+
+      if (similarity >= 0.9) {
+        timedLyrics.push({
+          ...lyric,
+          timestamp: {
+            start: startTime,
+            end: endTime,
+          },
+          similarity: similarity,
+        })
+
+        captionIndex++
+        matched = true
+        break
+      }
+
+      captionIndex++
+
+      if (captionIndex - initialCaptionIndex > 5) {
+        break
+      }
+    }
+
+    if (!matched) {
       timedLyrics.push({
         ...lyric,
         timestamp: {
-          start: startTime,
-          end: endTime,
+          start: lastEndTime,
+          end: lastEndTime + 3,
         },
-        similarity: bestMatch.similarity,
-      })
-    } else {
-      // 매칭되는 자막이 없는 경우 이전 타임스탬프 유지
-      const lastTimedLyric = timedLyrics[timedLyrics.length - 1]
-      timedLyrics.push({
-        ...lyric,
-        timestamp: lastTimedLyric
-          ? lastTimedLyric.timestamp
-          : {
-              start: lastEndTime,
-              end: lastEndTime + 3, // 기본 3초 유지
-            },
         similarity: 0,
       })
-      lastEndTime += 3 // 기본 지속 시간 추가
+      lastEndTime += 3
+    } else {
+      lastEndTime = endTime
     }
   })
 
