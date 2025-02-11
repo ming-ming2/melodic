@@ -15,6 +15,12 @@ interface TimedLyric extends LyricLine {
   similarity: number
 }
 
+export interface TimestampData {
+  start: number
+  end: number
+  confidence: number
+}
+
 // YouTube 자막 가져오기
 export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   try {
