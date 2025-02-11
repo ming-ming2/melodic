@@ -22,21 +22,25 @@ export interface TimestampData {
 }
 
 // YouTube 자막 가져오기
+// utils/youtubeUtils.ts
+const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:4000'
+
 export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   try {
-    console.log('Fetching captions for:', videoId) // 디버깅 로그
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/captions/${videoId}`
-    )
+    const response = await fetch(`${PROXY_URL}/api/captions/${videoId}`)
+
     if (!response.ok) {
       throw new Error('Failed to fetch captions')
     }
-    const data = await response.json()
-    console.log('Received caption data:', data) // 디버깅 로그
 
-    return data.data || []
+    const result = await response.json()
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to fetch captions')
+    }
+
+    return result.data
   } catch (error) {
-    console.error('Error fetching captions:', error)
+    console.error('Error in getVideoCaption:', error)
     throw error
   }
 }
