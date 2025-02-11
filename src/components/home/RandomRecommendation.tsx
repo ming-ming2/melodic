@@ -2,7 +2,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import useSongStore from '@/stores/songStore'
-import { Star, Play } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
 const RandomRecommendation: React.FC = () => {

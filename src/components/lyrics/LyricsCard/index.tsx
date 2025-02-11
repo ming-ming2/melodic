@@ -1,5 +1,5 @@
 // components/lyrics/LyricsCard/index.tsx
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 import TranslationTab from './TranslationTab'
@@ -30,11 +30,14 @@ export default function LyricsCard({
   const [activeTab, setActiveTab] = useState<TabType>('translation')
   const currentLyric = lyrics[currentIndex]
 
+  // components/lyrics/LyricsCard/index.tsx
   const handleSwipe = (direction: 'left' | 'right') => {
-    if (direction === 'left' && currentIndex < lyrics.length - 1) {
-      onIndexChange(currentIndex + 1)
-    } else if (direction === 'right' && currentIndex > 0) {
-      onIndexChange(currentIndex - 1)
+    if (direction === 'left') {
+      // 오른쪽으로 넘길 때
+      onIndexChange(currentIndex === lyrics.length - 1 ? 0 : currentIndex + 1)
+    } else if (direction === 'right') {
+      // 왼쪽으로 넘길 때
+      onIndexChange(currentIndex === 0 ? lyrics.length - 1 : currentIndex - 1)
     }
   }
 
@@ -73,8 +76,7 @@ export default function LyricsCard({
       <div className="flex justify-between items-center p-4 border-t border-gray-800">
         <button
           onClick={() => handleSwipe('right')}
-          disabled={currentIndex === 0}
-          className="p-2 rounded-full bg-gray-800 disabled:opacity-50"
+          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
         >
           <ChevronLeft className="w-6 h-6 text-white" />
         </button>
@@ -85,8 +87,7 @@ export default function LyricsCard({
 
         <button
           onClick={() => handleSwipe('left')}
-          disabled={currentIndex === lyrics.length - 1}
-          className="p-2 rounded-full bg-gray-800 disabled:opacity-50"
+          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
         >
           <ChevronRight className="w-6 h-6 text-white" />
         </button>

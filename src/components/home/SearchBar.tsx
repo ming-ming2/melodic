@@ -1,80 +1,106 @@
 // components/home/SearchBar.tsx
 import React, { useState } from 'react'
-import { Search, X } from 'lucide-react'
+import { Search, X, ArrowLeft } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import useSongStore from '@/stores/songStore'
 
-const SearchBar: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState('')
+interface SearchBarProps {
+  className?: string
+}
+
+export default function SearchBar({ className }: SearchBarProps) {
   const [isFocused, setIsFocused] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
 
-  const { searchHistory, addSearchHistory } = useSongStore()
-
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      addSearchHistory(searchQuery)
-      // 검색 로직 추가 필요
-    }
-  }
-
-  const clearSearch = () => {
-    setSearchQuery('')
+  const handleBack = () => {
     setIsFocused(false)
+    setSearchQuery('')
   }
 
   return (
-    <div className="relative w-full">
+    <div className={`${className} relative z-50`}>
       <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="flex items-center bg-gray-800 rounded-xl p-3 shadow-md"
+        layout
+        className={`
+          bg-gray-800 overflow-hidden rounded-full
+          ${isFocused ? 'fixed top-2 left-2 right-2 md:relative md:inset-auto' : ''}
+          ${isFocused ? 'h-14 md:h-10' : 'h-10'}
+        `}
+        transition={{
+          layout: { duration: 0.15, ease: 'easeOut' },
+        }}
       >
-        <Search className="text-gray-400 mr-3" />
-        <input
-          type="text"
-          placeholder="노래 제목이나 가사를 검색해보세요"
-          value={searchQuery}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          className="w-full bg-transparent text-white outline-none"
-        />
-        {searchQuery && (
-          <X className="text-gray-400 cursor-pointer" onClick={clearSearch} />
-        )}
+        {/* 내부 컨텐츠를 absolute로 배치하여 좌우 이동 방지 */}
+        <div className="relative h-full">
+          {/* 뒤로가기 버튼 */}
+          <AnimatePresence mode="wait">
+            {isFocused && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="md:hidden absolute left-3 top-1/2 -translate-y-1/2 p-1"
+                onClick={handleBack}
+                transition={{ duration: 0.1 }}
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-400" />
+              </motion.button>
+            )}
+          </AnimatePresence>
+
+          {/* 메인 컨텐츠 */}
+          <div
+            className={`
+            absolute top-0 h-full
+            ${isFocused ? 'left-12 md:left-4' : 'left-4'}
+            right-4
+            transition-[left] duration-200 ease-out
+            flex items-center
+          `}
+          >
+            {/* 검색 아이콘 */}
+            <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
+
+            {/* 입력창 */}
+            <input
+              type="text"
+              placeholder="원하시는 노래를 검색하세요"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onFocus={() => setIsFocused(true)}
+              className="flex-1 h-full pl-3 bg-transparent text-white focus:outline-none text-base"
+            />
+
+            {/* 삭제 버튼 */}
+            <AnimatePresence mode="wait">
+              {searchQuery && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="p-2 hover:bg-gray-700 rounded-full flex-shrink-0"
+                  onClick={() => setSearchQuery('')}
+                  transition={{ duration: 0.1 }}
+                >
+                  <X className="w-5 h-5 text-gray-400" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </motion.div>
 
+      {/* 검색 결과 (모바일에서만 표시) */}
       <AnimatePresence>
-        {isFocused && searchHistory.length > 0 && (
+        {isFocused && window.innerWidth < 768 && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute z-10 w-full bg-gray-700 rounded-b-xl shadow-lg mt-1 max-h-60 overflow-y-auto"
-          >
-            <div className="p-2 text-sm text-gray-300">최근 검색어</div>
-            {searchHistory.map((item) => (
-              <motion.div
-                key={item.id}
-                whileHover={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
-                className="p-2 cursor-pointer flex justify-between items-center"
-                onClick={() => {
-                  setSearchQuery(item.query)
-                  handleSearch()
-                }}
-              >
-                <span>{item.query}</span>
-                <span className="text-xs text-gray-500">
-                  {new Date(item.timestamp).toLocaleDateString()}
-                </span>
-              </motion.div>
-            ))}
-          </motion.div>
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed left-2 right-2 top-[4.5rem] bottom-2 bg-gray-800 rounded-2xl shadow-lg"
+            transition={{ duration: 0.15 }}
+          ></motion.div>
         )}
       </AnimatePresence>
     </div>
   )
 }
-
-export default SearchBar

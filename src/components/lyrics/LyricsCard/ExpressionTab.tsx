@@ -9,7 +9,6 @@ interface ExpressionTabProps {
 }
 
 export default function ExpressionTab({
-  lyric,
   isPremium = false,
 }: ExpressionTabProps) {
   if (!isPremium) {

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Lock } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import useAuthStore from '@/stores/authStore'
 
@@ -90,9 +91,19 @@ export default function LoginPage() {
         {/* 로고 및 환영 메시지 */}
         <div className="text-center">
           <Link href="/" className="inline-block mb-6">
-            <span className="text-4xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 text-transparent bg-clip-text">
-              🎵 Melodic
-            </span>
+            <div className="flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Melodic 로고"
+                width={80}
+                height={40}
+                priority
+                className="w-16 h-10 mr-2"
+              />
+              <span className="text-4xl font-bold bg-gradient-to-r from-primary-400 to-accent-400 text-transparent bg-clip-text">
+                Melodic
+              </span>
+            </div>
           </Link>
           <h2 className="text-2xl font-semibold text-white mb-2">
             멜로딕에 오신 것을 환영합니다!
