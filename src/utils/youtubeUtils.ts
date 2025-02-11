@@ -24,7 +24,9 @@ export interface TimestampData {
 // YouTube 자막 가져오기
 export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   try {
-    const response = await fetch(`/api/captions/${videoId}`)
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/captions/${videoId}`
+    )
     if (!response.ok) {
       throw new Error('Failed to fetch captions')
     }
