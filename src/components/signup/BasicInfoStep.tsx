@@ -2,7 +2,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Lock, User } from 'lucide-react'
-import { SignUpData } from '@/pages/signup'
+import { SignUpData } from '@/types/auth'
 
 interface BasicInfoStepProps {
   data: SignUpData
