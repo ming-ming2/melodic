@@ -24,13 +24,17 @@ export interface TimestampData {
 // YouTube 자막 가져오기
 export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   try {
+    console.log('Fetching captions for:', videoId) // 디버깅 로그
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/captions/${videoId}`
     )
     if (!response.ok) {
       throw new Error('Failed to fetch captions')
     }
-    return await response.json()
+    const data = await response.json()
+    console.log('Received caption data:', data) // 디버깅 로그
+
+    return data.data || []
   } catch (error) {
     console.error('Error fetching captions:', error)
     throw error
@@ -88,6 +92,12 @@ export function matchLyricsWithCaptions(
   lyrics: LyricLine[],
   captions: Caption[]
 ): TimedLyric[] {
+  console.log(
+    'Matching lyrics:',
+    lyrics.length,
+    'with captions:',
+    captions.length
+  ) // 디버깅 로그
   const timedLyrics: TimedLyric[] = []
   let captionIndex = 0
   let lastEndTime = 0
