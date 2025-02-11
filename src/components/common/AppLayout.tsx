@@ -1,8 +1,7 @@
 // components/common/AppLayout.tsx
-// components/common/AppLayout.tsx
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Home, Book, Search, Settings, Menu, X } from 'lucide-react'
+import { Home, Book, Search, Settings, Menu } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import MobileMenu from './MobileMenu'
@@ -21,7 +20,6 @@ export default function AppLayout({
   children,
   showHeader = true,
   showBottomNav = true,
-  headerTitle,
   onBack,
 }: AppLayoutProps) {
   const pathname = usePathname()
@@ -35,16 +33,22 @@ export default function AppLayout({
           <div className="max-w-7xl mx-auto px-4">
             <div className="flex items-center justify-between h-16">
               {/* 로고 영역 */}
-              <Link href="/" className="flex-shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="Melodic 로고"
-                  width={80}
-                  height={40}
-                  priority
-                  className="mr-2 w-8 md:w-16"
-                />
-              </Link>
+              {onBack ? (
+                <button onClick={onBack} className="text-white">
+                  ←
+                </button>
+              ) : (
+                <Link href="/" className="flex-shrink-0">
+                  <Image
+                    src="/logo.png"
+                    alt="Melodic 로고"
+                    width={80}
+                    height={40}
+                    priority
+                    className="mr-2 w-8 md:w-16"
+                  />
+                </Link>
+              )}
 
               {/* 검색창 */}
               <div className="flex-1 max-w-2xl mx-auto px-2 md:px-4">
@@ -130,7 +134,7 @@ export default function AppLayout({
         {children}
       </main>
 
-      {/* 하단 네비게이션 (기존과 동일) */}
+      {/* 하단 네비게이션 */}
       {showBottomNav && (
         <nav className="fixed bottom-0 left-0 right-0 h-16 bg-gray-900 border-t border-gray-800">
           <div className="h-full max-w-xl mx-auto px-6 flex items-center justify-around">

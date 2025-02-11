@@ -1,12 +1,12 @@
 // components/settings/LanguageSection.tsx
 import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Globe, Plus, X } from 'lucide-react'
+import { Globe, X } from 'lucide-react'
 import SectionHeader from './common/SectionHeader'
 import {
   LANGUAGE_DATA,
-  validateAndCorrectLanguage,
-  getFeaturedLanguages,
+  // validateAndCorrectLanguage,
+  // getFeaturedLanguages,
 } from '@/utils/languageData'
 
 interface LanguageSectionProps {
@@ -21,7 +21,7 @@ export default function LanguageSection({
     'ja',
     'en',
   ])
-  const [showCustomInput, setShowCustomInput] = useState(false)
+  // const [showCustomInput, setShowCustomInput] = useState(false)
   const sectionRef = useRef<HTMLDivElement>(null)
 
   const selectedLanguagesData = LANGUAGE_DATA.filter((lang) =>

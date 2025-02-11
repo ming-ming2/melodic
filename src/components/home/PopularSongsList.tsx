@@ -3,6 +3,7 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import useSongStore from '@/stores/songStore'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const PopularSongsList: React.FC = () => {
   const { popularSongs } = useSongStore()
@@ -25,9 +26,11 @@ const PopularSongsList: React.FC = () => {
             onClick={handleSongClick} // 클릭 핸들러 추가
           >
             <div className="relative">
-              <img
+              <Image
                 src={song.albumCover}
                 alt={`${song.title} 앨범 커버`}
+                width={300} // 적절한 width 지정
+                height={192} // 높이 48(12rem)에 대응하는 높이
                 className="w-full h-48 object-cover rounded-2xl shadow-md"
               />
               <div className="absolute inset-0 bg-black opacity-20 hover:opacity-10 transition-opacity rounded-2xl" />

@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, Plus, X } from 'lucide-react'
 import {
-  LANGUAGE_DATA,
+  // LANGUAGE_DATA,
   validateAndCorrectLanguage,
   getFeaturedLanguages,
 } from '@/utils/languageData'

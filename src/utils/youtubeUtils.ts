@@ -88,7 +88,7 @@ export function matchLyricsWithCaptions(
     let combinedText = ''
     let startTime = 0
     let endTime = 0
-    let initialCaptionIndex = captionIndex
+    const initialCaptionIndex = captionIndex
     let matched = false
 
     while (captionIndex < captions.length) {

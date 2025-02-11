@@ -9,7 +9,7 @@ import NotificationSection from '@/components/settings/NotificationSection'
 import AccountSection from '@/components/settings/AccountSection'
 
 export default function SettingsPage() {
-  const { user } = useAuthStore()
+  // const { user } = useAuthStore()
 
   const containerVariants = {
     hidden: { opacity: 0 },

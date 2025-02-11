@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import useSongStore from '@/stores/songStore'
 import { Star } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const RecentLearningList: React.FC = () => {
   const { recentLearnings, toggleFavorite } = useSongStore()
@@ -38,9 +39,11 @@ const RecentLearningList: React.FC = () => {
               transition-all duration-300 cursor-pointer
             `}
           >
-            <img
+            <Image
               src={song.albumCover}
               alt={`${song.title} 앨범 커버`}
+              width={64} // w-16은 4rem, 즉 64px
+              height={64} // h-16은 4rem, 즉 64px
               className="w-16 h-16 rounded-lg mr-4 object-cover"
             />
             <div className="flex-grow" onClick={() => handleSongClick(song.id)}>

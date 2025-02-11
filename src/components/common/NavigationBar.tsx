@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 import useAuthStore from '@/stores/authStore'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function NavigationBar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -38,10 +39,12 @@ export default function NavigationBar() {
           {isAuthenticated ? (
             <>
               <div className="flex items-center">
-                <img
+                <Image
                   src={user?.profileImage || '/images/default-avatar.png'}
                   alt="프로필"
-                  className="w-8 h-8 rounded-full"
+                  width={32} // Tailwind CSS의 w-8은 보통 32px입니다.
+                  height={32} // h-8 역시 32px에 해당합니다.
+                  className="rounded-full"
                 />
                 <span className="ml-2 text-white">{user?.name}</span>
               </div>
