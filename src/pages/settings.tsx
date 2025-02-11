@@ -2,7 +2,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 import AppLayout from '@/components/common/AppLayout'
-import useAuthStore from '@/stores/authStore'
+// import useAuthStore from '@/stores/authStore'
 import LanguageSection from '@/components/settings/LanguageSection'
 import SubscriptionSection from '@/components/settings/SubscriptionSection'
 import NotificationSection from '@/components/settings/NotificationSection'
