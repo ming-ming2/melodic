@@ -69,16 +69,16 @@ export default function AppLayout({
                       {/* 드롭다운 메뉴 */}
                       <div className="absolute top-full right-0 mt-2 w-48 bg-gray-800 rounded-xl shadow-lg py-2 hidden group-hover:block">
                         <Link
-                          href="/profile"
-                          className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700"
-                        >
-                          프로필 설정
-                        </Link>
-                        <Link
                           href="/settings"
                           className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700"
                         >
                           학습 설정
+                        </Link>
+                        <Link
+                          href="/onboarding"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700"
+                        >
+                          도움말
                         </Link>
                         <button
                           onClick={() => useAuthStore.getState().logout()}

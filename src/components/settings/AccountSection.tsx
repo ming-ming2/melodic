@@ -50,7 +50,7 @@ export default function AccountSection({ scrollOnClick }: AccountSectionProps) {
             initial={{ height: 0 }}
             animate={{ height: 'auto' }}
             exit={{ height: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
             <div className="px-6 pb-6 border-t border-gray-700/50">
