@@ -2,7 +2,7 @@
 import React, { useState, useRef, useCallback } from 'react'
 import { Search, X, ArrowLeft, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import debounce from 'lodash/debounce'
+import { debounce } from 'lodash'
 import { YouTubeSearchResult } from '@/types/youtube'
 import { searchYouTubeVideos } from '@/utils/youtubeSearch'
 
