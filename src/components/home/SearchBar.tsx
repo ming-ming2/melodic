@@ -1,9 +1,8 @@
 // src/components/home/SearchBar.tsx
 import React, { useState, useRef, useCallback } from 'react'
-import { Search, X, ArrowLeft } from 'lucide-react'
+import { Search, X, ArrowLeft, Loader2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import debounce from 'lodash/debounce'
-import { useRouter } from 'next/navigation'
 import { YouTubeSearchResult } from '@/types/youtube'
 import { searchYouTubeVideos } from '@/utils/youtubeSearch'
 
@@ -12,7 +11,6 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ className }: SearchBarProps) {
-  const router = useRouter()
   const [isFocused, setIsFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<YouTubeSearchResult[]>([])
@@ -84,12 +82,12 @@ export default function SearchBar({ className }: SearchBarProps) {
 
           <div
             className={`
-            absolute top-0 h-full
-            ${isFocused ? 'left-12 md:left-4' : 'left-4'}
-            right-4
-            transition-[left] duration-200 ease-out
-            flex items-center
-          `}
+              absolute top-0 h-full
+              ${isFocused ? 'left-12 md:left-4' : 'left-4'}
+              right-4
+              transition-[left] duration-200 ease-out
+              flex items-center
+            `}
           >
             <Search className="w-5 h-5 text-gray-400 flex-shrink-0" />
 
@@ -104,21 +102,33 @@ export default function SearchBar({ className }: SearchBarProps) {
             />
 
             <AnimatePresence mode="wait">
-              {searchQuery && (
-                <motion.button
+              {isLoading ? (
+                <motion.div
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  className="p-2 hover:bg-gray-700 rounded-full flex-shrink-0"
-                  onClick={() => {
-                    setSearchQuery('')
-                    setSearchResults([])
-                    inputRef.current?.focus()
-                  }}
+                  className="p-2"
                   transition={{ duration: 0.1 }}
                 >
-                  <X className="w-5 h-5 text-gray-400" />
-                </motion.button>
+                  <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                </motion.div>
+              ) : (
+                searchQuery && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="p-2 hover:bg-gray-700 rounded-full flex-shrink-0"
+                    onClick={() => {
+                      setSearchQuery('')
+                      setSearchResults([])
+                      inputRef.current?.focus()
+                    }}
+                    transition={{ duration: 0.1 }}
+                  >
+                    <X className="w-5 h-5 text-gray-400" />
+                  </motion.button>
+                )
               )}
             </AnimatePresence>
           </div>
@@ -132,15 +142,15 @@ export default function SearchBar({ className }: SearchBarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className={`
-        z-50
-        bg-gray-800/90 
-        backdrop-blur-md 
-        rounded-2xl 
-        shadow-2xl 
-        overflow-hidden
-        fixed top-[4.5rem] left-2 right-2
-        md:absolute md:top-full md:mt-2
-      `}
+              z-50
+              bg-gray-800/90 
+              backdrop-blur-md 
+              rounded-2xl 
+              shadow-2xl 
+              overflow-hidden
+              fixed top-[4.5rem] left-2 right-2
+              md:absolute md:top-full md:mt-2
+            `}
             style={{
               maxHeight: '200px', // 스크롤 방지
               overflowY: 'auto',
@@ -150,45 +160,45 @@ export default function SearchBar({ className }: SearchBarProps) {
               <div
                 key={result.id}
                 className="p-3 
-            hover:bg-gray-700/50 
-            cursor-pointer 
-            flex 
-            items-center 
-            transition-colors 
-            duration-200 
-            group 
-            border-b 
-            border-gray-700 
-            last:border-b-0"
+                  hover:bg-gray-700/50 
+                  cursor-pointer 
+                  flex 
+                  items-center 
+                  transition-colors 
+                  duration-200 
+                  group 
+                  border-b 
+                  border-gray-700 
+                  last:border-b-0"
               >
                 <img
                   src={result.thumbnailUrl}
                   alt={result.title}
                   className="w-12 h-12 
-              rounded-xl 
-              mr-4 
-              object-cover 
-              group-hover:scale-105 
-              transition-transform"
+                    rounded-xl 
+                    mr-4 
+                    object-cover 
+                    group-hover:scale-105 
+                    transition-transform"
                 />
                 <div className="flex-1 overflow-hidden">
                   <div
                     className="text-white 
-                text-sm 
-                font-medium 
-                mb-1 
-                truncate
-                group-hover:text-accent-400 
-                transition-colors"
+                      text-sm 
+                      font-medium 
+                      mb-1 
+                      truncate
+                      group-hover:text-accent-400 
+                      transition-colors"
                   >
                     {result.title}
                   </div>
                   <div
                     className="text-gray-400 
-                text-xs 
-                truncate 
-                group-hover:text-white 
-                transition-colors"
+                      text-xs 
+                      truncate 
+                      group-hover:text-white 
+                      transition-colors"
                   >
                     {result.channelTitle}
                   </div>
