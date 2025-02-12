@@ -1,6 +1,15 @@
 // components/lyrics/YouTubePlayer/index.tsx
 import React, { useEffect, useRef, useState } from 'react'
-import { Repeat, Play, Pause, SkipBack, Volume2, VolumeX } from 'lucide-react'
+import {
+  Repeat,
+  Play,
+  Pause,
+  SkipBack,
+  Volume2,
+  VolumeX,
+  Loader2,
+} from 'lucide-react'
+import { motion } from 'framer-motion'
 
 interface YouTubePlayerProps {
   videoId: string
@@ -56,6 +65,29 @@ declare global {
   }
 }
 
+const LoadingSpinner = () => (
+  <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/90 z-50">
+    <motion.div
+      animate={{ rotate: 360 }}
+      transition={{
+        duration: 1,
+        repeat: Infinity,
+        ease: 'linear',
+      }}
+    >
+      <Loader2 className="w-12 h-12 text-accent-500" />
+    </motion.div>
+    <motion.p
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+      className="mt-4 text-gray-400 text-sm font-medium"
+    >
+      동영상 로딩 중...
+    </motion.p>
+  </div>
+)
+
 const isMobile = () => {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
 }
@@ -75,8 +107,9 @@ export default function YouTubePlayer({
   const isRepeatOnRef = useRef(false)
 
   const [isReady, setIsReady] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [isPlaying, setIsPlaying] = useState(false)
-  const [overlayVisible, setOverlayVisible] = useState(isMobile())
+  const [overlayVisible, setOverlayVisible] = useState(false)
   const [isRepeatOn, setIsRepeatOn] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [volume, setVolume] = useState(100)
@@ -115,6 +148,7 @@ export default function YouTubePlayer({
     if (isNowPlaying) {
       startTimeCheck.current()
       setOverlayVisible(false)
+      setIsLoading(false)
     } else {
       if (timeCheckInterval.current) {
         clearInterval(timeCheckInterval.current)
@@ -150,9 +184,16 @@ export default function YouTubePlayer({
         events: {
           onReady: () => {
             setIsReady(true)
+            setIsLoading(false)
             if (playerRef.current) {
               playerRef.current.seekTo(currentLyric.start)
               playerRef.current.setVolume(volume)
+
+              // 모바일일 경우 오버레이 표시
+              if (isMobile()) {
+                setOverlayVisible(true)
+              }
+
               if (!isMobile()) {
                 playerRef.current.mute()
                 playerRef.current.playVideo()
@@ -216,7 +257,7 @@ export default function YouTubePlayer({
   const handleStartClick = (e: React.PointerEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    if (overlayClickedRef.current) return
+    if (overlayClickedRef.current || isLoading) return
     overlayClickedRef.current = true
 
     if (overlayRef.current) {
@@ -284,7 +325,9 @@ export default function YouTubePlayer({
         style={{ pointerEvents: overlayVisible ? 'none' : 'auto' }}
       />
 
-      {isMobile() && overlayVisible && (
+      {isLoading && <LoadingSpinner />}
+
+      {isMobile() && overlayVisible && !isLoading && (
         <div
           ref={overlayRef}
           className="absolute inset-0 flex items-center justify-center bg-black/90 z-50 pointer-events-auto"

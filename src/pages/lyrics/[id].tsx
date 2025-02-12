@@ -8,7 +8,7 @@ import LyricsCard from '@/components/lyrics/LyricsCard/index'
 import { SAMPLE_LYRICS } from '@/utils/dummyData'
 import { getVideoCaption, matchLyricsWithCaptions } from '@/utils/youtubeUtils'
 import { LyricLine } from '@/types/lyrics'
-
+import LoadingSpinner from '@/components/common/LoadingSpinner' // 추가
 interface TimedLyric extends LyricLine {
   timestamp: {
     start: number
@@ -109,8 +109,8 @@ export default function LyricsPage() {
         <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
           {/* 유튜브 플레이어 영역 */}
           <div className="w-full lg:w-1/2">
-            <div className="w-full sticky top-14">
-              <div className="aspect-video">
+            <div className="w-full lg:sticky lg:top-14">
+              <div className="aspect-video w-full">
                 {!isLoading && timedLyrics.length > 0 && (
                   <YouTubePlayer
                     videoId={SAMPLE_LYRICS.youtube_id}
@@ -124,11 +124,9 @@ export default function LyricsPage() {
           </div>
 
           {/* 가사 카드 영역 */}
-          <div className="w-full lg:w-1/2 bg-gray-900">
+          <div className="w-full lg:w-1/2 bg-gray-900 lg:h-[calc(100vh-56px)] lg:overflow-hidden">
             {isLoading ? (
-              <div className="flex items-center justify-center p-4">
-                <div className="text-white">가사 로딩 중...</div>
-              </div>
+              <LoadingSpinner />
             ) : (
               <LyricsCard
                 lyrics={timedLyrics}
