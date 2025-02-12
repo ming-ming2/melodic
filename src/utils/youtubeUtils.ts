@@ -27,7 +27,11 @@ const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:4000'
 
 export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   try {
-    const response = await fetch(`${PROXY_URL}/api/captions/${videoId}`)
+    const response = await fetch(`${PROXY_URL}/api/captions/${videoId}`, {
+      headers: {
+        'ngrok-skip-browser-warning': 'true', // 🚀 Ngrok 경고 페이지 우회
+      },
+    })
 
     if (!response.ok) {
       throw new Error('Failed to fetch captions')
