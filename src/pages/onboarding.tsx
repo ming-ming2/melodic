@@ -10,7 +10,6 @@ import {
   FileText,
   HelpCircle,
 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 import TutorialNavigation from '@/components/tutorial/TutorialNavigation'
 import TutorialStepNavigation from '@/components/tutorial/TutorialStepNavigation'
 import TutorialProgressBar from '@/components/tutorial/TutorialProgressBar'
