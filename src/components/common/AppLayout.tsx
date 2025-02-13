@@ -79,6 +79,18 @@ export default function AppLayout({
                           학습 설정
                         </Link>
                         <Link
+                          href="/favorites"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700"
+                        >
+                          즐겨찾기
+                        </Link>
+                        <Link
+                          href="//learn-history"
+                          className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700"
+                        >
+                          학습 기록
+                        </Link>
+                        <Link
                           href="/onboarding"
                           className="block px-4 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700"
                         >
@@ -147,15 +159,7 @@ export default function AppLayout({
               <Home size={24} />
               <span className="text-xs mt-1">홈</span>
             </Link>
-            <Link
-              href="/search"
-              className={`flex flex-col items-center ${
-                pathname === '/search' ? 'text-accent-500' : 'text-gray-400'
-              }`}
-            >
-              <Search size={24} />
-              <span className="text-xs mt-1">검색</span>
-            </Link>
+
             <Link
               href="/vocabulary"
               className={`flex flex-col items-center ${

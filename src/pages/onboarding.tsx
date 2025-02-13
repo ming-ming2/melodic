@@ -1,6 +1,7 @@
 // pages/onboarding.tsx
 import React, { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 import {
   ChevronRight,
   ChevronLeft,
@@ -48,7 +49,7 @@ const TUTORIAL_STEPS = [
 export default function TutorialPage() {
   const [currentStep, setCurrentStep] = useState(0)
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false)
-
+  const router = useRouter()
   const totalSteps = TUTORIAL_STEPS.length
 
   const handleNextStep = () => {
@@ -117,7 +118,13 @@ export default function TutorialPage() {
               <ChevronLeft className="w-5 h-5" />
               이전
             </button>
-
+            {/* 홈 버튼 추가 */}
+            <button
+              onClick={() => router.push('/')}
+              className="text-white hover:text-accent-400"
+            >
+              <Home className="w-6 h-6" />
+            </button>
             <button
               onClick={handleNextStep}
               disabled={currentStep === totalSteps - 1}

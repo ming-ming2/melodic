@@ -1,5 +1,5 @@
 // components/tutorial/TutorialStepNavigation.tsx
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 interface TutorialStep {
@@ -19,18 +19,46 @@ export default function TutorialStepNavigation({
   currentStep,
   onStepChange,
 }: TutorialStepNavigationProps) {
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const stepRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  useEffect(() => {
+    if (scrollContainerRef.current && stepRefs.current[currentStep]) {
+      const container = scrollContainerRef.current
+      const activeStep = stepRefs.current[currentStep]
+
+      if (activeStep) {
+        const containerWidth = container.offsetWidth
+        const stepWidth = activeStep.offsetWidth
+        const stepOffset = activeStep.offsetLeft
+
+        // 현재 단계를 화면 중앙에 위치
+        const scrollPosition = stepOffset - containerWidth / 2 + stepWidth / 2
+
+        container.scrollTo({
+          left: scrollPosition,
+          behavior: 'smooth',
+        })
+      }
+    }
+  }, [currentStep])
+
   return (
-    <div className="w-full overflow-x-auto py-4 bg-gray-900">
-      <div
-        className="flex space-x-4 px-4 snap-x snap-mandatory"
-        style={{
-          scrollSnapType: 'x mandatory',
-          WebkitOverflowScrolling: 'touch',
-        }}
-      >
+    <div
+      ref={scrollContainerRef}
+      className="w-full overflow-x-auto py-4 bg-gray-900"
+      style={{
+        scrollSnapType: 'x mandatory',
+        WebkitOverflowScrolling: 'touch',
+      }}
+    >
+      <div className="flex space-x-4 px-4 snap-x">
         {steps.map((step, index) => (
           <motion.button
             key={index}
+            ref={(el) => {
+              stepRefs.current[index] = el
+            }}
             onClick={() => onStepChange(index)}
             className={`
               flex-shrink-0 

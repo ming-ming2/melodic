@@ -33,7 +33,7 @@ const kpopKeywords = [
   'aespa',
 ]
 
-// isKoreanContent: 트랙 제목, 아티스트명, 앨범명 모두를 검사
+// isKoreanContent: 트랙 제목, 아티스트명, 앨범명을 모두 검사
 function isKoreanContent(
   title: string,
   artistNames: string,
@@ -166,6 +166,43 @@ async function getAccessToken(): Promise<string> {
   }
 }
 
+/**
+ * 중복된 트랙을 제거합니다.
+ * key: 아티스트명 + 트랙명 (소문자, 트림 처리)
+ * 만약 동일 키가 존재하면, query와 정확히 일치하는 트랙이 있다면 그걸 우선 선택합니다.
+ */
+function deduplicateResults(
+  results: SpotifySearchResult[],
+  query: string
+): SpotifySearchResult[] {
+  const dedupedMap = new Map<string, SpotifySearchResult>()
+  const normalizedQuery = query.toLowerCase().trim()
+
+  results.forEach((result) => {
+    // key 생성: 모든 아티스트명을 포함 (콤마 구분)
+    const key =
+      result.artist.toLowerCase().trim() +
+      '::' +
+      result.title.toLowerCase().trim()
+    if (!dedupedMap.has(key)) {
+      dedupedMap.set(key, result)
+    } else {
+      // 이미 key가 존재하는 경우, query와 정확히 일치하는 트랙명을 우선 선택합니다.
+      const existing = dedupedMap.get(key)!
+      const existingExact =
+        existing.title.toLowerCase().trim() === normalizedQuery
+      const currentExact = result.title.toLowerCase().trim() === normalizedQuery
+
+      if (currentExact && !existingExact) {
+        dedupedMap.set(key, result)
+      }
+      // 둘 다 exact 혹은 둘 다 non-exact이면, 기존 값을 유지 (순서 보존)
+    }
+  })
+
+  return Array.from(dedupedMap.values())
+}
+
 export async function searchSpotifyTracks(
   query: string
 ): Promise<SpotifySearchResult[]> {
@@ -178,7 +215,7 @@ export async function searchSpotifyTracks(
       `https://api.spotify.com/v1/search?${new URLSearchParams({
         q: query,
         type: 'track',
-        limit: '20',
+        limit: '30',
         market: 'US',
       })}`,
       {
@@ -217,7 +254,7 @@ export async function searchSpotifyTracks(
       })
     )
 
-    return tracksWithArtistInfo
+    const filteredTracks = tracksWithArtistInfo
       .filter(({ isKorean }) => !isKorean)
       .map(({ track }) => ({
         id: track.id,
@@ -227,6 +264,11 @@ export async function searchSpotifyTracks(
         albumImageUrl: track.album.images[0]?.url || '',
         previewUrl: track.preview_url || undefined,
       }))
+
+    // 중복된 동일 아티스트의 동일 노래 제거 (query와 정확히 일치하는게 있다면 우선)
+    const uniqueResults = deduplicateResults(filteredTracks, query)
+
+    return uniqueResults
   } catch (error) {
     console.error('Spotify search error:', error)
     return []
