@@ -1,6 +1,6 @@
 // pages/onboarding.tsx
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import {
   ChevronRight,
   ChevronLeft,
@@ -47,7 +47,6 @@ const TUTORIAL_STEPS = [
 ]
 
 export default function TutorialPage() {
-  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(0)
   const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false)
 

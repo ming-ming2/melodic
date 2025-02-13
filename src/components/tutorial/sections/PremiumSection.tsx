@@ -1,7 +1,7 @@
 // components/tutorial/sections/PremiumSection.tsx
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Check, X, Crown } from 'lucide-react'
+import { Check, Crown } from 'lucide-react'
 
 export default function PremiumSection() {
   const freePlanFeatures = [

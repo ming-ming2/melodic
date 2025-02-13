@@ -1,6 +1,5 @@
 // src/components/vocabulary/VocabularySection.tsx
 import React, { useState } from 'react'
-import { Globe } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { LANGUAGE_DATA } from '@/utils/languageData'
 

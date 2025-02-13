@@ -1,7 +1,6 @@
 // components/tutorial/TutorialStepNavigation.tsx
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Home, Book, Star, FileText, HelpCircle } from 'lucide-react'
 
 interface TutorialStep {
   icon: React.ElementType
