@@ -20,7 +20,7 @@ export default function TutorialStepNavigation({
   onStepChange,
 }: TutorialStepNavigationProps) {
   return (
-    <div className="w-full overflow-x-auto py-4">
+    <div className="w-full overflow-x-auto py-4 bg-gray-900">
       <div
         className="flex space-x-4 px-4 snap-x snap-mandatory"
         style={{

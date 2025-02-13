@@ -21,22 +21,22 @@ export default function PremiumSection() {
   ]
 
   return (
-    <div className="container mx-auto">
-      <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-white mb-4">
-          프리미엄으로 언어 학습의 차원을 높이세요
+    <div className="container mx-auto px-4">
+      <div className="text-center mb-8">
+        <h2 className="text-2xl font-bold text-white mb-4">
+          프리미엄으로 학습의 차원을 높이세요
         </h2>
-        <p className="text-gray-400 max-w-2xl mx-auto">
+        <p className="text-base text-gray-400 max-w-xl mx-auto">
           멜로딕 프리미엄은 당신의 언어 학습 경험을 완전히 새롭게 만들어 줍니다.
         </p>
       </div>
 
-      <div className="flex justify-center gap-8">
+      <div className="flex flex-col md:flex-row justify-center gap-6">
         {/* 무료 플랜 */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-96 bg-gray-800 rounded-2xl p-6 shadow-lg"
+          className="w-full md:w-80 bg-gray-800 rounded-2xl p-6 shadow-lg"
         >
           <h3 className="text-xl font-bold text-white mb-6 text-center">
             무료 플랜
@@ -59,7 +59,7 @@ export default function PremiumSection() {
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
-          className="w-96 bg-gradient-to-br from-accent-600/20 to-accent-500/10 rounded-2xl p-6 shadow-2xl border border-accent-500/30"
+          className="w-full md:w-80 bg-gradient-to-br from-accent-600/20 to-accent-500/10 rounded-2xl p-6 shadow-2xl border border-accent-500/30"
         >
           <div className="flex items-center justify-center mb-6">
             <Crown className="w-8 h-8 text-yellow-500 mr-2" />

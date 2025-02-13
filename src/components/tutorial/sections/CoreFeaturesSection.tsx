@@ -52,18 +52,17 @@ export default function CoreFeaturesSection({
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+    <div className="container mx-auto px-4 py-6">
+      <div className="text-center mb-6">
+        <h2 className="text-xl md:text-2xl font-bold text-white mb-3">
           멜로딕의 핵심 기능
         </h2>
-        <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto">
-          음악을 통해 언어를 배우는 가장 즐거운 방법, 멜로딕의 혁신적인 기능들을
-          만나보세요.
+        <p className="text-sm md:text-base text-gray-400 max-w-xl mx-auto">
+          음악을 통해 언어를 배우는 가장 즐거운 방법
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {FEATURES.map((feature, index) => (
           <motion.div
             key={index}
@@ -78,7 +77,7 @@ export default function CoreFeaturesSection({
             onHoverEnd={() => setHoveredFeature(null)}
             className={`
               relative 
-              p-5 
+              p-3 
               rounded-xl 
               border 
               transition-all 
@@ -90,26 +89,24 @@ export default function CoreFeaturesSection({
               }
             `}
           >
-            <div className="flex items-center mb-4">
+            <div className="flex items-center mb-2">
               <feature.icon
                 className={`
-                  w-6 md:w-8 h-6 md:h-8 mr-3 
+                  w-5 h-5 mr-2 
                   ${feature.isPremium ? 'text-yellow-500' : 'text-accent-500'}
                 `}
               />
-              <h3 className="text-base md:text-lg font-semibold text-white">
+              <h3 className="text-xs md:text-sm font-semibold text-white">
                 {feature.title}
               </h3>
             </div>
-            <p className="text-sm md:text-base text-gray-400 mb-4">
-              {feature.description}
-            </p>
+            <p className="text-xs text-gray-400 mb-2">{feature.description}</p>
             {feature.isPremium && (
               <button
                 onClick={onPremiumFeatureClick}
-                className="absolute top-4 right-4 text-yellow-500 hover:text-yellow-400"
+                className="absolute top-2 right-2 text-yellow-500 hover:text-yellow-400"
               >
-                <Star className="w-5 h-5" fill="currentColor" />
+                <Star className="w-4 h-4" fill="currentColor" />
               </button>
             )}
           </motion.div>
