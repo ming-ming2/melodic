@@ -1,7 +1,7 @@
 // components/common/AppLayout.tsx
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Home, Book, Search, Settings, Menu } from 'lucide-react'
+import { Home, Book, Settings, Menu } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
 import MobileMenu from './MobileMenu'
