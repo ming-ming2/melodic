@@ -5,14 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 import debounce from 'lodash/debounce'
 import { SpotifySearchResult } from '@/types/spotify'
 import { searchSpotifyTracks } from '@/utils/spotifySearch'
-import { useRouter } from 'next/navigation'
 
 interface SearchBarProps {
   className?: string
 }
 
 export default function SearchBar({ className }: SearchBarProps) {
-  const router = useRouter()
   const [isFocused, setIsFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SpotifySearchResult[]>([])

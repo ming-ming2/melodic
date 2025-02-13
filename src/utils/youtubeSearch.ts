@@ -106,9 +106,6 @@ export async function searchOfficialMusicVideos(
       `${query} official mv`,
     ]
 
-    // 모든 검색 결과를 담을 배열
-    let allResults: YouTubeSearchResult[] = []
-
     // 각 검색 쿼리에 대해 병렬로 요청
     const searchPromises = searchQueries.map(async (searchQuery) => {
       const response = await fetch(
