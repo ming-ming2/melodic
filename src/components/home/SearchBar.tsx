@@ -1,23 +1,24 @@
-// src/components/home/SearchBar.tsx
+// components/home/SearchBar.tsx
 import React, { useState, useRef, useCallback } from 'react'
-import { Search, X, ArrowLeft, Loader2 } from 'lucide-react'
+import { Search, X, ArrowLeft, Loader2, Music } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import debounce from 'lodash/debounce'
-import { YouTubeSearchResult } from '@/types/youtube'
-import { searchYouTubeVideos } from '@/utils/youtubeSearch'
+import { SpotifySearchResult } from '@/types/spotify'
+import { searchSpotifyTracks } from '@/utils/spotifySearch'
+import { useRouter } from 'next/navigation'
 
 interface SearchBarProps {
   className?: string
 }
 
 export default function SearchBar({ className }: SearchBarProps) {
+  const router = useRouter()
   const [isFocused, setIsFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<YouTubeSearchResult[]>([])
+  const [searchResults, setSearchResults] = useState<SpotifySearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // 디바운스된 검색 함수
   const debouncedSearch = useCallback(
     debounce(async (query: string) => {
       if (query.length < 2) {
@@ -27,7 +28,7 @@ export default function SearchBar({ className }: SearchBarProps) {
 
       try {
         setIsLoading(true)
-        const results = await searchYouTubeVideos(query)
+        const results = await searchSpotifyTracks(query)
         setSearchResults(results)
       } catch (error) {
         console.error('Search error:', error)
@@ -43,6 +44,14 @@ export default function SearchBar({ className }: SearchBarProps) {
     const value = e.target.value
     setSearchQuery(value)
     debouncedSearch(value)
+  }
+
+  const handleResultClick = (result: SpotifySearchResult) => {
+    // TODO: YouTube API 연동은 나중에 구현
+    console.log('Selected track:', result)
+    setIsFocused(false)
+    setSearchQuery('')
+    setSearchResults([])
   }
 
   const handleBack = () => {
@@ -134,76 +143,49 @@ export default function SearchBar({ className }: SearchBarProps) {
           </div>
         </div>
       </motion.div>
-
+      {/* 검색 결과 */}
       <AnimatePresence>
         {isFocused && searchResults.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`
-              z-50
-              bg-gray-800/90 
-              backdrop-blur-md 
-              rounded-2xl 
-              shadow-2xl 
-              overflow-hidden
-              fixed top-[4.5rem] left-2 right-2
-              md:absolute md:top-full md:mt-2
-            `}
-            style={{
-              maxHeight: '200px', // 스크롤 방지
-              overflowY: 'auto',
-            }}
+            className="
+        fixed top-[4.5rem] left-2 right-2
+        md:absolute md:top-full md:mt-2
+        bg-gray-800/90 backdrop-blur-md 
+        rounded-2xl shadow-2xl overflow-hidden
+        max-h-[60vh] md:max-h-[400px]
+        overflow-y-auto
+        scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent
+      "
           >
-            {searchResults.slice(0, 5).map((result) => (
-              <div
+            {searchResults.map((result) => (
+              <button
                 key={result.id}
-                className="p-3 
-                  hover:bg-gray-700/50 
-                  cursor-pointer 
-                  flex 
-                  items-center 
-                  transition-colors 
-                  duration-200 
-                  group 
-                  border-b 
-                  border-gray-700 
-                  last:border-b-0"
+                onClick={() => handleResultClick(result)}
+                className="w-full p-4 hover:bg-gray-700/50 transition-colors flex items-center gap-4 border-b border-gray-700/50 last:border-b-0"
               >
-                <img
-                  src={result.thumbnailUrl}
-                  alt={result.title}
-                  className="w-12 h-12 
-                    rounded-xl 
-                    mr-4 
-                    object-cover 
-                    group-hover:scale-105 
-                    transition-transform"
-                />
-                <div className="flex-1 overflow-hidden">
-                  <div
-                    className="text-white 
-                      text-sm 
-                      font-medium 
-                      mb-1 
-                      truncate
-                      group-hover:text-accent-400 
-                      transition-colors"
-                  >
-                    {result.title}
-                  </div>
-                  <div
-                    className="text-gray-400 
-                      text-xs 
-                      truncate 
-                      group-hover:text-white 
-                      transition-colors"
-                  >
-                    {result.channelTitle}
+                <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                  <img
+                    src={result.albumImageUrl}
+                    alt={result.albumName}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <Music className="w-5 h-5 text-white" />
                   </div>
                 </div>
-              </div>
+
+                <div className="flex-1 text-left">
+                  <h3 className="text-white text-sm font-medium mb-1 truncate">
+                    {result.title}
+                  </h3>
+                  <p className="text-gray-400 text-xs truncate">
+                    {result.artist} • {result.albumName}
+                  </p>
+                </div>
+              </button>
             ))}
           </motion.div>
         )}
