@@ -51,7 +51,7 @@ export default function IntroSection() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-6 h-full flex flex-col">
+    <div className="container mx-auto px-4  h-full flex flex-col">
       <div className="text-center mb-8">
         <Image
           src="/logo.png"

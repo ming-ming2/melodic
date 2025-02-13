@@ -52,7 +52,7 @@ export default function CoreFeaturesSection({
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto px-4">
       <div className="text-center mb-6">
         <h2 className="text-xl md:text-2xl font-bold text-white mb-3">
           멜로딕의 핵심 기능

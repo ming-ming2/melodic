@@ -46,13 +46,13 @@ export default function TutorialStepNavigation({
   return (
     <div
       ref={scrollContainerRef}
-      className="w-full overflow-x-auto py-4 bg-gray-900"
+      className="w-full overflow-x-auto py-2 bg-gray-900"
       style={{
         scrollSnapType: 'x mandatory',
         WebkitOverflowScrolling: 'touch',
       }}
     >
-      <div className="flex space-x-4 px-4 snap-x">
+      <div className="flex space-x-2 px-4 snap-x">
         {steps.map((step, index) => (
           <motion.button
             key={index}
@@ -64,7 +64,7 @@ export default function TutorialStepNavigation({
               flex-shrink-0 
               w-64 
               snap-center 
-              p-4 
+              p-2 
               rounded-xl 
               border 
               transition-all 
@@ -75,21 +75,21 @@ export default function TutorialStepNavigation({
                   : 'bg-gray-800 border-gray-700 hover:bg-gray-700'
               }
             `}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.85 }}
           >
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
               <step.icon
                 className={`
-                  w-8 h-8 
+                  w-6 h-6 
                   ${currentStep === index ? 'text-accent-500' : 'text-gray-400'}
                 `}
               />
               <div className="text-left">
                 <h3
                   className={`
-                  font-semibold 
-                  ${currentStep === index ? 'text-white' : 'text-gray-300'}
-                `}
+                    font-semibold text-sm
+                    ${currentStep === index ? 'text-white' : 'text-gray-300'}
+                  `}
                 >
                   {step.title}
                 </h3>
