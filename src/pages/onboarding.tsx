@@ -1,87 +1,149 @@
 // pages/onboarding.tsx
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, Book, Award } from 'lucide-react'
+import {
+  ChevronRight,
+  ChevronLeft,
+  Home,
+  Book,
+  Star,
+  FileText,
+  HelpCircle,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import TutorialNavigation from '@/components/tutorial/TutorialNavigation'
+import TutorialStepNavigation from '@/components/tutorial/TutorialStepNavigation'
+import TutorialProgressBar from '@/components/tutorial/TutorialProgressBar'
+import TutorialSections from '@/components/tutorial/TutorialSections'
+import PremiumModal from '@/components/tutorial/PremiumModal'
 
-const tutorialSteps = [
+// 튜토리얼 스텝 데이터
+const TUTORIAL_STEPS = [
   {
-    title: '노래로 배우는 새로운 방법',
-    description: '좋아하는 노래로 즐겁게 언어를 학습하세요',
-    icon: Search,
+    icon: Home,
+    title: '시작하기',
+    description: '멜로딕 소개',
   },
   {
-    title: '나만의 단어장',
-    description: '학습한 단어와 표현을 저장하고 복습하세요',
     icon: Book,
+    title: '핵심 기능',
+    description: '주요 기능 알아보기',
   },
   {
-    title: '퀴즈로 실력 향상',
-    description: '학습한 내용을 퀴즈로 확인하세요',
-    icon: Award,
+    icon: Star,
+    title: '프리미엄',
+    description: '무료 vs 프리미엄',
+  },
+  {
+    icon: FileText,
+    title: '실습',
+    description: '직접 체험하기',
+  },
+  {
+    icon: HelpCircle,
+    title: 'FAQ',
+    description: '자주 묻는 질문',
   },
 ]
 
-const OnboardingPage: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(0)
+export default function TutorialPage() {
   const router = useRouter()
+  const [currentStep, setCurrentStep] = useState(0)
+  const [isPremiumModalOpen, setIsPremiumModalOpen] = useState(false)
 
-  const nextStep = () => {
-    if (currentStep < tutorialSteps.length - 1) {
+  const totalSteps = TUTORIAL_STEPS.length
+
+  const handleNextStep = () => {
+    if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1)
-    } else {
-      router.push('/')
     }
   }
 
+  const handlePrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handlePremiumFeatureClick = () => {
+    setIsPremiumModalOpen(true)
+  }
+
   return (
-    <div className="h-screen flex flex-col items-center justify-center bg-gray-950 p-4">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          className="max-w-md w-full text-center"
-        >
-          {/* 아이콘 */}
-          <div className="mb-8">
-            {React.createElement(tutorialSteps[currentStep].icon, {
-              className: 'w-16 h-16 text-accent-500 mx-auto',
-            })}
-          </div>
+    <div className="min-h-screen bg-gray-950 flex flex-col">
+      {/* 프로그레스 바 */}
+      <TutorialProgressBar totalSteps={totalSteps} currentStep={currentStep} />
 
-          {/* 텍스트 */}
-          <h2 className="text-2xl font-bold text-white mb-4">
-            {tutorialSteps[currentStep].title}
-          </h2>
-          <p className="text-gray-400 mb-8">
-            {tutorialSteps[currentStep].description}
-          </p>
+      {/* 모바일 수평 스크롤 네비게이션 */}
+      <div className="block md:hidden">
+        <TutorialStepNavigation
+          steps={TUTORIAL_STEPS}
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
+        />
+      </div>
 
-          {/* 진행 상태 */}
-          <div className="flex justify-center space-x-2 mb-8">
-            {tutorialSteps.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full ${
-                  index === currentStep ? 'bg-accent-500' : 'bg-gray-700'
-                }`}
+      {/* 데스크톱 사이드바 네비게이션 */}
+      <div className="flex flex-1">
+        <TutorialNavigation
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
+          className="hidden md:block"
+        />
+
+        {/* 메인 콘텐츠 영역 */}
+        <div className="flex-1 flex flex-col">
+          <div className="flex-1 relative overflow-y-auto p-4">
+            <AnimatePresence mode="wait">
+              <TutorialSections
+                currentStep={currentStep}
+                onPremiumFeatureClick={handlePremiumFeatureClick}
               />
-            ))}
+            </AnimatePresence>
           </div>
 
-          {/* 버튼 */}
-          <button
-            onClick={nextStep}
-            className="bg-accent-600 text-white px-8 py-3 rounded-xl font-medium hover:bg-accent-700 transition-colors"
-          >
-            {currentStep === tutorialSteps.length - 1 ? '시작하기' : '다음'}
-          </button>
-        </motion.div>
-      </AnimatePresence>
+          {/* 하단 네비게이션 */}
+          <div className="sticky bottom-0 bg-gray-900 p-4 flex justify-between items-center border-t border-gray-800">
+            <button
+              onClick={handlePrevStep}
+              disabled={currentStep === 0}
+              className={`
+                flex items-center gap-2 
+                ${
+                  currentStep === 0
+                    ? 'text-gray-500 cursor-not-allowed'
+                    : 'text-white hover:text-accent-400'
+                }
+              `}
+            >
+              <ChevronLeft className="w-5 h-5" />
+              이전
+            </button>
+
+            <button
+              onClick={handleNextStep}
+              disabled={currentStep === totalSteps - 1}
+              className={`
+                flex items-center gap-2 
+                ${
+                  currentStep === totalSteps - 1
+                    ? 'text-gray-500 cursor-not-allowed'
+                    : 'text-white hover:text-accent-400'
+                }
+              `}
+            >
+              다음
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 프리미엄 모달 */}
+      <PremiumModal
+        isOpen={isPremiumModalOpen}
+        onClose={() => setIsPremiumModalOpen(false)}
+      />
     </div>
   )
 }
-
-export default OnboardingPage

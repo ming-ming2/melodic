@@ -130,7 +130,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       <span>학습 설정</span>
                     </Link>
                     <Link
-                      href="/help"
+                      href="/onboarding"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
