@@ -2,10 +2,10 @@
 import React, { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
-import TranslationTab from './TranslationTab'
 import VocabularyTab from './VocabularyTab'
 import GrammarTab from './GrammarTab'
 import ExpressionTab from './ExpressionTab'
+import AdvancedTab from './AdvancedTab'
 
 interface LyricsCardProps {
   lyrics: LyricLine[]
@@ -13,13 +13,13 @@ interface LyricsCardProps {
   onIndexChange: (index: number) => void
 }
 
-type TabType = 'translation' | 'vocabulary' | 'grammar' | 'expression'
+type TabType = 'vocabulary' | 'grammar' | 'expressions' | 'advanced'
 
 const tabData = [
-  { id: 'translation', label: '번역', icon: '📜' },
-  { id: 'vocabulary', label: '단어', icon: '📚' },
-  { id: 'grammar', label: '문법', icon: '📖' },
-  { id: 'expression', label: '표현', icon: '🎶', premium: true },
+  { id: 'vocabulary', label: '단어', icon: '📚', premium: false },
+  { id: 'grammar', label: '문법', icon: '📖', premium: false },
+  { id: 'expressions', label: '표현', icon: '🗣️', premium: false },
+  { id: 'advanced', label: '심화', icon: '🎯', premium: true },
 ] as const
 
 export default function LyricsCard({
@@ -27,16 +27,13 @@ export default function LyricsCard({
   currentIndex,
   onIndexChange,
 }: LyricsCardProps) {
-  const [activeTab, setActiveTab] = useState<TabType>('translation')
+  const [activeTab, setActiveTab] = useState<TabType>('vocabulary')
   const currentLyric = lyrics[currentIndex]
 
-  // components/lyrics/LyricsCard/index.tsx
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'left') {
-      // 오른쪽으로 넘길 때
       onIndexChange(currentIndex === lyrics.length - 1 ? 0 : currentIndex + 1)
     } else if (direction === 'right') {
-      // 왼쪽으로 넘길 때
       onIndexChange(currentIndex === 0 ? lyrics.length - 1 : currentIndex - 1)
     }
   }
@@ -65,6 +62,9 @@ export default function LyricsCard({
           >
             <span className="text-lg mb-1">{tab.icon}</span>
             <span className="text-xs">{tab.label}</span>
+            {tab.premium && (
+              <span className="text-[10px] text-accent-400">Premium</span>
+            )}
           </button>
         ))}
       </div>
@@ -97,14 +97,14 @@ export default function LyricsCard({
 
   function renderTabContent() {
     switch (activeTab) {
-      case 'translation':
-        return <TranslationTab lyric={currentLyric} />
       case 'vocabulary':
         return <VocabularyTab lyric={currentLyric} />
       case 'grammar':
         return <GrammarTab lyric={currentLyric} />
-      case 'expression':
-        return <ExpressionTab lyric={currentLyric} isPremium={false} />
+      case 'expressions':
+        return <ExpressionTab lyric={currentLyric} />
+      case 'advanced':
+        return <AdvancedTab lyric={currentLyric} />
       default:
         return null
     }

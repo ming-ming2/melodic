@@ -4,18 +4,30 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import { Music, BookOpen, Star, ChevronLeft, ChevronRight } from 'lucide-react'
 
-/**
- * formatKoreanText
- * 한국어 텍스트의 문장 구분(예: '다. ' '요. ' 등) 후 일반 공백을 non-breaking space로 대체하여,
- * 의미 단위가 한 문단으로 묶이도록 합니다.
- */
 function formatKoreanText(text: string) {
-  // ([.?!]) 뒤의 공백을 non-breaking space로 대체
   return text.replace(/([.?!])\s+/g, '$1\u00A0')
+}
+
+// 방향에 따라 슬라이드 애니메이션을 제어하는 variants
+const swipeVariants = {
+  initial: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? 100 : -100,
+  }),
+  animate: {
+    opacity: 1,
+    x: 0,
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? -100 : 100,
+  }),
 }
 
 export default function IntroSection() {
   const [currentHighlight, setCurrentHighlight] = useState(0)
+  // direction: 1이면 오른쪽(다음), -1이면 왼쪽(이전)
+  const [direction, setDirection] = useState(0)
 
   const serviceHighlights = [
     {
@@ -39,32 +51,31 @@ export default function IntroSection() {
   ]
 
   const handleNext = () => {
+    setDirection(1)
     setCurrentHighlight((prev) =>
       prev === serviceHighlights.length - 1 ? 0 : prev + 1
     )
   }
 
   const handlePrev = () => {
+    setDirection(-1)
     setCurrentHighlight((prev) =>
       prev === 0 ? serviceHighlights.length - 1 : prev - 1
     )
   }
 
   return (
-    <div className="container mx-auto px-4  h-full flex flex-col">
-      <div className="text-center mb-8">
+    <div className="container mx-auto px-4 py-2 h-full flex flex-col">
+      <div className="text-center mb-2">
         <Image
           src="/logo.png"
           alt="Melodic 로고"
-          width={100}
-          height={50}
-          className="mx-auto mb-4"
+          width={80}
+          height={40}
+          className="mx-auto mb-2"
         />
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-4">
-          음악으로 만드는 언어 학습 혁명
-        </h1>
         <p
-          className="text-base md:text-lg text-gray-400 max-w-xl mx-auto leading-relaxed"
+          className="text-sm text-gray-400 max-w-xl mx-auto"
           style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
         >
           {formatKoreanText(
@@ -74,53 +85,68 @@ export default function IntroSection() {
       </div>
 
       <div className="flex-1 flex items-center justify-center relative">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentHighlight}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            className="w-full max-w-md bg-gray-800 rounded-xl p-6 text-center relative"
-          >
-            <div className="absolute top-1/2 left-0 transform -translate-y-1/2">
-              <button
-                onClick={handlePrev}
-                className="p-2 text-gray-400 hover:text-white"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="absolute top-1/2 right-0 transform -translate-y-1/2">
-              <button
-                onClick={handleNext}
-                className="p-2 text-gray-400 hover:text-white"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="mb-6 flex justify-center">
-              {React.createElement(serviceHighlights[currentHighlight].icon, {
-                className: 'w-12 h-12 text-accent-500',
-              })}
-            </div>
-            <h3 className="text-xl md:text-2xl font-semibold text-white mb-4">
-              {serviceHighlights[currentHighlight].title}
-            </h3>
-            <p
-              className="text-gray-400 text-sm md:text-base leading-relaxed"
-              style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+        {/* 드래그 가능한 영역 */}
+        <motion.div
+          drag="x"
+          dragElastic={0.5}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={(e, { offset }) => {
+            if (offset.x < -50) handleNext()
+            else if (offset.x > 50) handlePrev()
+          }}
+          className="w-full max-w-md relative"
+        >
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
+            <motion.div
+              key={currentHighlight}
+              custom={direction}
+              variants={swipeVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={{
+                type: 'tween',
+                duration: 0.2,
+                ease: 'easeInOut',
+              }}
+              className="w-full bg-gray-800 rounded-xl p-6 text-center relative"
             >
-              {formatKoreanText(
-                serviceHighlights[currentHighlight].description
-              )}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+              <div className="mb-6 flex justify-center">
+                {React.createElement(serviceHighlights[currentHighlight].icon, {
+                  className: 'w-12 h-12 text-accent-500',
+                })}
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">
+                {serviceHighlights[currentHighlight].title}
+              </h3>
+              <p
+                className="text-gray-400 text-sm leading-relaxed"
+                style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+              >
+                {formatKoreanText(
+                  serviceHighlights[currentHighlight].description
+                )}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+
+        {/* 화살표 버튼 - 드래그 영역 외부에 배치되어 고정됨 */}
+        <button
+          onClick={handlePrev}
+          className="hidden md:block absolute left-0 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+        >
+          <ChevronLeft className="w-8 h-8" />
+        </button>
+        <button
+          onClick={handleNext}
+          className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+        >
+          <ChevronRight className="w-8 h-8" />
+        </button>
       </div>
 
-      <div className="flex justify-center mt-6 space-x-2">
+      <div className="flex justify-center mt-2 space-x-2">
         {serviceHighlights.map((_, index) => (
           <div
             key={index}

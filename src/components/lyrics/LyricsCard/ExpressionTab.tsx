@@ -1,42 +1,74 @@
 // components/lyrics/LyricsCard/ExpressionTab.tsx
 import React from 'react'
-import { Lock } from 'lucide-react'
+import { BookmarkPlus, Check } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 
 interface ExpressionTabProps {
   lyric: LyricLine
-  isPremium?: boolean
 }
 
-export default function ExpressionTab({
-  isPremium = false,
-}: ExpressionTabProps) {
-  if (!isPremium) {
+export default function ExpressionTab({ lyric }: ExpressionTabProps) {
+  const [savedExpressions, setSavedExpressions] = React.useState<Set<string>>(
+    new Set()
+  )
+
+  const handleSaveExpression = (expression: string) => {
+    setSavedExpressions((prev) => {
+      const newSet = new Set(prev)
+      newSet.add(expression)
+      return newSet
+    })
+    // TODO: 실제 저장 로직 구현
+  }
+
+  if (!lyric.expressions || lyric.expressions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-center">
-        <Lock className="w-8 h-8 text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium text-white mb-2">
-          프리미엄 전용 기능
-        </h3>
-        <p className="text-gray-400 mb-4">
-          표현 분석을 확인하려면 프리미엄으로 업그레이드하세요.
-        </p>
-        <button className="px-6 py-2 bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-colors">
-          프리미엄 가입하기
-        </button>
+      <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+        <p>이 가사에는 분석할 표현이 없어요!</p>
       </div>
     )
   }
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-800 rounded-lg p-4">
-        <h3 className="text-lg font-medium text-white mb-2">표현 분석</h3>
-        {/* 프리미엄 콘텐츠 내용 */}
-        <p className="text-gray-300">
-          이 표현은 일상 회화에서도 자주 사용되며...
-        </p>
-      </div>
+      {lyric.expressions.map((expressionItem, index) => (
+        <div key={index} className="bg-gray-800 rounded-lg overflow-hidden">
+          {/* 표현 헤더 */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-700">
+            <div>
+              <h3 className="text-lg font-medium text-white">
+                {expressionItem.expression}
+              </h3>
+              <p className="text-accent-400 text-sm">
+                {expressionItem.meaning}
+              </p>
+            </div>
+            <button
+              onClick={() => handleSaveExpression(expressionItem.expression)}
+              className={`p-2 rounded-full transition-colors ${
+                savedExpressions.has(expressionItem.expression)
+                  ? 'bg-accent-600 text-white'
+                  : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+              }`}
+            >
+              {savedExpressions.has(expressionItem.expression) ? (
+                <Check className="w-5 h-5" />
+              ) : (
+                <BookmarkPlus className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+
+          {/* 설명 */}
+          <div className="p-4 bg-gray-800/50">
+            <p className="text-gray-300 mb-4">{expressionItem.explanation}</p>
+            <div>
+              <p className="text-sm text-gray-400 mb-1">예문</p>
+              <p className="text-gray-300">{expressionItem.example}</p>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   )
 }

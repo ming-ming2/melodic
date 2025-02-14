@@ -84,15 +84,15 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   {/* 학습 관련 메뉴 */}
                   <div className="space-y-1">
                     <Link
-                      href="/vocabulary"
+                      href="/studyroom"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
                       <Book size={20} />
-                      <span>내 단어장</span>
+                      <span>공부방</span>
                     </Link>
                     <Link
-                      href="/favorites"
+                      href="/default"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
@@ -100,7 +100,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       <span>즐겨찾기</span>
                     </Link>
                     <Link
-                      href="/learn-history"
+                      href="/default"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
@@ -114,15 +114,15 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   {/* 설정 관련 메뉴 */}
                   <div className="space-y-1">
                     <Link
-                      href="/profile"
+                      href="/settings"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
                       <User size={20} />
-                      <span>프로필 설정</span>
+                      <span>설정</span>
                     </Link>
                     <Link
-                      href="/settings"
+                      href="/default"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >

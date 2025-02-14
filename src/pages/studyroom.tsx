@@ -2,13 +2,13 @@
 import React, { useState } from 'react'
 import { Book, FileText, EyeOff } from 'lucide-react'
 import AppLayout from '@/components/common/AppLayout'
-import VocabularySection from '@/components/vocabulary/VocabularySection'
-import GrammarSection from '@/components/vocabulary/GrammarSection'
-import HiddenSection from '@/components/vocabulary/HiddenSection'
+import VocabularySection from '@/components/studyroom/VocabularySection'
+import GrammarSection from '@/components/studyroom/GrammarSection'
+import HiddenSection from '@/components/studyroom/HiddenSection'
 
 type ActiveTab = 'vocabulary' | 'grammar' | 'hidden'
 
-export default function VocabularyPage() {
+export default function StudyRoomPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('vocabulary')
 
   const renderSection = () => {
@@ -25,9 +25,7 @@ export default function VocabularyPage() {
   return (
     <AppLayout>
       <div className="max-w-4xl mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold text-white mb-6">
-          📖 단어장 & 문법 노트
-        </h1>
+        <h1 className="text-2xl font-bold text-white mb-6">📖 공부방</h1>
 
         {/* 탭 네비게이션 */}
         <div className="flex mb-6 bg-gray-800 rounded-xl p-1">

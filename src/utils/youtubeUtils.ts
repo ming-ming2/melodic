@@ -21,15 +21,23 @@ export interface TimestampData {
   confidence: number
 }
 
-// YouTube 자막 가져오기
-// utils/youtubeUtils.ts
 const PROXY_URL = process.env.NEXT_PUBLIC_PROXY_URL || 'http://localhost:4000'
+
+// 언어 감지 함수 추가
+export function detectLanguage(text: string): string {
+  // 일본어 (히라가나, 카타카나, 한자) 감지
+  if (/[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(text)) return 'JA'
+  // 한국어 감지
+  if (/[ㄱ-ㅎㅏ-ㅣ가-힣]/.test(text)) return 'KO'
+  // 기본값은 영어
+  return 'EN'
+}
 
 export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   try {
     const response = await fetch(`${PROXY_URL}/api/captions/${videoId}`, {
       headers: {
-        'ngrok-skip-browser-warning': 'true', // 🚀 Ngrok 경고 페이지 우회
+        'ngrok-skip-browser-warning': 'true',
       },
     })
 
@@ -49,7 +57,6 @@ export async function getVideoCaption(videoId: string): Promise<Caption[]> {
   }
 }
 
-// Levenshtein Distance 계산 함수
 function calculateLevenshteinDistance(a: string, b: string): number {
   const matrix: number[][] = []
 
@@ -77,7 +84,6 @@ function calculateLevenshteinDistance(a: string, b: string): number {
   return matrix[a.length][b.length]
 }
 
-// 텍스트 정규화 함수
 function normalizeText(text: string): string {
   return text
     .toLowerCase()
@@ -86,7 +92,6 @@ function normalizeText(text: string): string {
     .trim()
 }
 
-// 문자열 유사도 계산
 function calculateSimilarity(str1: string, str2: string): number {
   const normalized1 = normalizeText(str1)
   const normalized2 = normalizeText(str2)
@@ -95,7 +100,6 @@ function calculateSimilarity(str1: string, str2: string): number {
   return 1 - distance / maxLength
 }
 
-// 가사와 자막 매칭
 export function matchLyricsWithCaptions(
   lyrics: LyricLine[],
   captions: Caption[]
@@ -105,10 +109,14 @@ export function matchLyricsWithCaptions(
     lyrics.length,
     'with captions:',
     captions.length
-  ) // 디버깅 로그
+  )
   const timedLyrics: TimedLyric[] = []
   let captionIndex = 0
   let lastEndTime = 0
+
+  // 첫 번째 캡션으로 언어 감지
+  const language = detectLanguage(captions[0]?.text || '')
+  const languagePair = `${language}-KR`
 
   lyrics.forEach((lyric) => {
     let combinedText = ''

@@ -3,18 +3,28 @@ import React, { useState, useRef, useCallback } from 'react'
 import { Search, X, ArrowLeft, Loader2, Music } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import debounce from 'lodash/debounce'
+import { useRouter } from 'next/navigation'
 import { SpotifySearchResult } from '@/types/spotify'
 import { searchSpotifyTracks } from '@/utils/spotifySearch'
+import { findBestMatchingVideo } from '@/utils/youtubeMatching'
 
 interface SearchBarProps {
   className?: string
+  onSearchStart?: () => void
+  onSearchEnd?: () => void
 }
 
-export default function SearchBar({ className }: SearchBarProps) {
+export default function SearchBar({
+  className,
+  onSearchStart,
+  onSearchEnd,
+}: SearchBarProps) {
+  const router = useRouter()
   const [isFocused, setIsFocused] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SpotifySearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const debouncedSearch = useCallback(
@@ -44,12 +54,38 @@ export default function SearchBar({ className }: SearchBarProps) {
     debouncedSearch(value)
   }
 
-  const handleResultClick = (result: SpotifySearchResult) => {
-    // TODO: YouTube API 연동은 나중에 구현
-    console.log('Selected track:', result)
-    setIsFocused(false)
-    setSearchQuery('')
-    setSearchResults([])
+  // components/home/SearchBar.tsx의 handleResultClick 부분만 수정
+
+  const handleResultClick = async (result: SpotifySearchResult) => {
+    try {
+      setIsProcessing(true)
+      onSearchStart?.()
+
+      // YouTube에서 매칭되는 영상 찾기만 수행
+      const videoMatch = await findBestMatchingVideo(result)
+
+      if (!videoMatch) {
+        console.error('No matching video found')
+        // TODO: 에러 UI 표시
+        return
+      }
+
+      // 바로 페이지 이동
+      router.push(
+        `/lyrics/${videoMatch.id}?title=${encodeURIComponent(result.title)}&artist=${encodeURIComponent(result.artist)}`
+      )
+
+      // 상태 초기화
+      setIsFocused(false)
+      setSearchQuery('')
+      setSearchResults([])
+    } catch (error) {
+      console.error('Error processing selection:', error)
+      // TODO: 에러 UI 표시
+    } finally {
+      setIsProcessing(false)
+      onSearchEnd?.()
+    }
   }
 
   const handleBack = () => {
@@ -141,7 +177,7 @@ export default function SearchBar({ className }: SearchBarProps) {
           </div>
         </div>
       </motion.div>
-      {/* 검색 결과 */}
+
       <AnimatePresence>
         {isFocused && searchResults.length > 0 && (
           <motion.div
@@ -149,20 +185,25 @@ export default function SearchBar({ className }: SearchBarProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="
-        fixed top-[4.5rem] left-2 right-2
-        md:absolute md:top-full md:mt-2
-        bg-gray-800/90 backdrop-blur-md 
-        rounded-2xl shadow-2xl overflow-hidden
-        max-h-[60vh] md:max-h-[400px]
-        overflow-y-auto
-        scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-transparent
-      "
+              fixed top-[4.5rem] left-2 right-2
+              md:absolute md:top-full md:mt-2
+              bg-gray-800/90 backdrop-blur-md 
+              rounded-2xl shadow-2xl overflow-hidden
+              max-h-[60vh] md:max-h-[400px]
+              overflow-y-auto
+            "
           >
             {searchResults.map((result) => (
               <button
                 key={result.id}
                 onClick={() => handleResultClick(result)}
-                className="w-full p-4 hover:bg-gray-700/50 transition-colors flex items-center gap-4 border-b border-gray-700/50 last:border-b-0"
+                disabled={isProcessing}
+                className={`
+                  w-full p-4 hover:bg-gray-700/50 transition-colors 
+                  flex items-center gap-4 border-b border-gray-700/50 
+                  last:border-b-0
+                  ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}
+                `}
               >
                 <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                   <img
@@ -185,6 +226,22 @@ export default function SearchBar({ className }: SearchBarProps) {
                 </div>
               </button>
             ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isProcessing && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-gray-900/80 flex items-center justify-center z-50"
+          >
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 text-accent-500 animate-spin mx-auto mb-4" />
+              <p className="text-white">학습 페이지 준비 중...</p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

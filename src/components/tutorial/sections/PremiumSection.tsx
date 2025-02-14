@@ -1,85 +1,154 @@
 // components/tutorial/sections/PremiumSection.tsx
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Check, Crown } from 'lucide-react'
+import { Check, Crown, ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function PremiumSection() {
-  const freePlanFeatures = [
-    '최대 5개 노래 학습',
-    '기본 단어장 저장',
-    '번역 및 기본 문법 분석',
+  const [currentPlan, setCurrentPlan] = useState(0)
+
+  const planDetails = [
+    {
+      type: '무료 플랜',
+      features: [
+        '하루 최대 3개 노래 학습',
+        '광고 시청시 추가 학습 가능',
+        '단어장, 문법노트 저장',
+        '단어 및 기본 문법 분석',
+      ],
+      color: 'bg-gray-800',
+      buttonText: '현재 사용 중',
+    },
+    {
+      type: '프리미엄 플랜',
+      features: [
+        '무제한 노래 학습',
+        '표현 심화 분석',
+        '오프라인 학습 모드',
+        '광고 없는 학습 환경',
+      ],
+      color: 'bg-gradient-to-br from-accent-600/20 to-accent-500/10',
+      buttonText: '7일 무료 체험 시작',
+    },
   ]
 
-  const premiumPlanFeatures = [
-    '무제한 노래 학습',
-    '무제한 단어장 저장',
-    '심화 문법 분석',
-    '표현 학습 기능',
-    '오프라인 학습 모드',
-    '광고 없는 학습 환경',
-    '우선 고객 지원',
-  ]
+  const handleNext = () => {
+    setCurrentPlan((prev) => (prev === planDetails.length - 1 ? 0 : prev + 1))
+  }
+
+  const handlePrev = () => {
+    setCurrentPlan((prev) => (prev === 0 ? planDetails.length - 1 : prev - 1))
+  }
 
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white mb-4">
+        {/* <h2 className="text-2xl font-bold text-white mb-4">
           프리미엄으로 학습의 차원을 높이세요
-        </h2>
-        <p className="text-base text-gray-400 max-w-xl mx-auto">
-          멜로딕 프리미엄은 당신의 언어 학습 경험을 완전히 새롭게 만들어 줍니다.
+        </h2> */}
+        <p className="text-gray-400 max-w-2xl mx-auto">
+          프리미엄으로 학습의 차원을 높이세요.
         </p>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-center gap-6">
-        {/* 무료 플랜 */}
-        <motion.div
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full md:w-80 bg-gray-800 rounded-2xl p-6 shadow-lg"
+      <div className="relative flex items-center justify-center">
+        {/* 데스크톱 화살표 */}
+        <button
+          onClick={handlePrev}
+          className="hidden md:block absolute left-0 z-10 p-2 text-gray-400 hover:text-white"
         >
-          <h3 className="text-xl font-bold text-white mb-6 text-center">
-            무료 플랜
-          </h3>
-          <div className="space-y-4 mb-6">
-            {freePlanFeatures.map((feature, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-green-500" />
-                <span className="text-gray-300">{feature}</span>
-              </div>
-            ))}
-          </div>
-          <div className="text-center text-gray-400 mb-4">언어 학습의 시작</div>
-          <button className="w-full py-3 bg-gray-700 text-white rounded-lg">
-            현재 사용 중
-          </button>
-        </motion.div>
+          <ChevronLeft className="w-8 h-8" />
+        </button>
 
-        {/* 프리미엄 플랜 */}
-        <motion.div
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="w-full md:w-80 bg-gradient-to-br from-accent-600/20 to-accent-500/10 rounded-2xl p-6 shadow-2xl border border-accent-500/30"
+        <button
+          onClick={handleNext}
+          className="hidden md:block absolute right-0 z-10 p-2 text-gray-400 hover:text-white"
         >
-          <div className="flex items-center justify-center mb-6">
-            <Crown className="w-8 h-8 text-yellow-500 mr-2" />
-            <h3 className="text-2xl font-bold text-white">프리미엄 플랜</h3>
-          </div>
-          <div className="space-y-4 mb-6">
-            {premiumPlanFeatures.map((feature, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <Check className="w-5 h-5 text-accent-500" />
-                <span className="text-white">{feature}</span>
+          <ChevronRight className="w-8 h-8" />
+        </button>
+
+        <motion.div
+          drag="x"
+          dragElastic={0.5}
+          dragConstraints={{ left: 0, right: 0 }}
+          onDragEnd={(e, { offset }) => {
+            if (offset.x < -50) handleNext()
+            if (offset.x > 50) handlePrev()
+          }}
+          className="w-full max-w-md overflow-hidden"
+        >
+          <div
+            className="flex transition-transform duration-300"
+            style={{ transform: `translateX(-${currentPlan * 100}%)` }}
+          >
+            {planDetails.map((plan, index) => (
+              <div key={index} className="w-full flex-shrink-0 px-2">
+                <div
+                  className={`
+                    ${plan.color} 
+                    rounded-2xl 
+                    p-6 
+                    shadow-lg
+                    w-full
+                  `}
+                >
+                  <div className="flex items-center justify-center mb-6">
+                    {index === 1 && (
+                      <Crown className="w-8 h-8 text-yellow-500 mr-2" />
+                    )}
+                    <h3 className="text-xl font-bold text-white">
+                      {plan.type}
+                    </h3>
+                  </div>
+
+                  <div className="space-y-3 mb-6">
+                    {plan.features.map((feature, featureIndex) => (
+                      <div
+                        key={featureIndex}
+                        className="flex items-center gap-3"
+                      >
+                        <Check className="w-5 h-5 text-green-500" />
+                        <span className="text-white">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* {index === 1 && (
+                    <div className="text-center text-gray-300 mb-4">
+                      첫 달 50% 할인 중!
+                    </div>
+                  )} */}
+
+                  <button
+                    className={`
+                    w-full 
+                    py-3 
+                    rounded-lg 
+                    ${
+                      index === 0
+                        ? 'bg-gray-700 text-white'
+                        : 'bg-accent-600 text-white hover:bg-accent-700'
+                    }
+                  `}
+                  >
+                    {plan.buttonText}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-          <div className="text-center text-gray-300 mb-4">
-            첫 달 50% 할인 중!
-          </div>
-          <button className="w-full py-3 bg-accent-600 text-white rounded-lg hover:bg-accent-700 transition-colors">
-            7일 무료 체험 시작
-          </button>
         </motion.div>
+      </div>
+
+      <div className="flex justify-center mt-6 space-x-2">
+        {planDetails.map((_, index) => (
+          <div
+            key={index}
+            className={`
+              w-2 h-2 rounded-full 
+              ${currentPlan === index ? 'bg-accent-500' : 'bg-gray-700'}
+            `}
+          />
+        ))}
       </div>
     </div>
   )
