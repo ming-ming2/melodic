@@ -5,9 +5,7 @@ interface PracticeSectionProps {
   onPremiumFeatureClick: () => void
 }
 
-export default function PracticeSection({
-  onPremiumFeatureClick,
-}: PracticeSectionProps) {
+export default function PracticeSection({}: PracticeSectionProps) {
   return (
     <div className="container mx-auto">
       <div className="text-center mb-12">
