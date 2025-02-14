@@ -6,7 +6,7 @@ import AppLayout from '@/components/common/AppLayout'
 import YouTubePlayer from '@/components/lyrics/YouTubePlayer'
 import LyricsCard from '@/components/lyrics/LyricsCard'
 import LoadingSpinner from '@/components/common/LoadingSpinner'
-import { getVideoCaption, detectLanguage } from '@/utils/youtubeUtils'
+import { getVideoCaption } from '@/utils/youtubeUtils'
 import { processVideoLyrics } from '@/utils/lyricsProcessor'
 import type { LyricLine } from '@/types/lyrics'
 

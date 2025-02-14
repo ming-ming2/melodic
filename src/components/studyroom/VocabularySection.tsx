@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Book, Target, Repeat, RefreshCw, CheckCircle2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Target, Repeat, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { LANGUAGE_DATA } from '@/utils/languageData'
 import EditableCardField from './common/EditableCardField' // 수정한 컴포넌트 import

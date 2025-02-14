@@ -115,7 +115,6 @@ export function matchLyricsWithCaptions(
   let lastEndTime = 0
 
   // 첫 번째 캡션으로 언어 감지
-  const language = detectLanguage(captions[0]?.text || '')
 
   lyrics.forEach((lyric) => {
     let combinedText = ''

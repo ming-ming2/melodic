@@ -27,8 +27,6 @@ interface ItemListProps {
 
 export default function ItemList({
   items,
-  sortBy,
-  searchQuery,
   onItemClick,
   onHideItem,
 }: ItemListProps) {
