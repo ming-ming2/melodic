@@ -100,12 +100,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       <span>즐겨찾기</span>
                     </Link>
                     <Link
-                      href="/default"
+                      href="/analytics"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
                       <FileText size={20} />
-                      <span>학습 기록</span>
+                      <span>학습 분석</span>
                     </Link>
                   </div>
 
