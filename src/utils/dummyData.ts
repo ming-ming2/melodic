@@ -1,6 +1,5 @@
 // utils/dummyData.ts
 import { Song } from '@/types/song'
-import { SongLyrics } from '@/types/lyrics' // 이 부분 추가
 const albumCovers = [
   '/images/albums/album1.jpg',
   '/images/albums/album2.jpg',
