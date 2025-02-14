@@ -9,14 +9,14 @@ const albumCovers = [
   '/images/albums/album5.jpg',
 ]
 
-// 노래 ID로 가사 데이터 가져오는 유틸리티 함수
-export const getLyricsBySongId = (songId: string): SongLyrics | undefined => {
-  // 실제로는 여러 곡의 데이터가 있을 것이므로, songId로 찾는 로직 구현
-  // if (songId === 'betelgeuse_yuuri') {
-  //   return SAMPLE_LYRICS
-  // }
-  return undefined
-}
+// // 노래 ID로 가사 데이터 가져오는 유틸리티 함수
+// export const getLyricsBySongId = (songId: string): SongLyrics | undefined => {
+//   // 실제로는 여러 곡의 데이터가 있을 것이므로, songId로 찾는 로직 구현
+//   // if (songId === 'betelgeuse_yuuri') {
+//   //   return SAMPLE_LYRICS
+//   // }
+//   return undefined
+// }
 
 export const DUMMY_POPULAR_SONGS: Song[] = [
   {
