@@ -47,7 +47,7 @@ const EditableCardField: React.FC<EditableCardFieldProps> = ({
               value={tempValue}
               onChange={(e) => {
                 // 숫자만 남기고 제거
-                let newVal = e.target.value.replace(/[^0-9]/g, '')
+                const newVal = e.target.value.replace(/[^0-9]/g, '')
                 // 만약 newVal가 비어있거나, 오직 '0' 또는 여러 0로만 이루어진 경우 업데이트하지 않음
                 if (newVal !== '' && /^0+$/.test(newVal)) return
                 setTempValue(newVal)

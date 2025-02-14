@@ -1,6 +1,6 @@
 // components/grammar/GrammarDetailModal.tsx
 import React, { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import {
   X,
   ChevronLeft,
@@ -33,11 +33,6 @@ interface GrammarDetailModalProps {
   onNext: () => void
   hasPrev: boolean
   hasNext: boolean
-}
-
-function isMobile() {
-  if (typeof window === 'undefined') return false
-  return window.innerWidth < 768
 }
 
 const swipeVariants = {
@@ -81,11 +76,15 @@ export default function GrammarDetailModal({
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [onPrev, onNext, onClose, hasPrev, hasNext])
 
-  const handleDragEnd = (e: any, { offset }: { offset: { x: number } }) => {
-    if (offset.x < -50 && hasNext) {
+  // e와 info에 대한 타입을 명시하여 any를 제거합니다.
+  const handleDragEnd = (
+    e: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    if (info.offset.x < -50 && hasNext) {
       setDirection(1)
       onNext()
-    } else if (offset.x > 50 && hasPrev) {
+    } else if (info.offset.x > 50 && hasPrev) {
       setDirection(-1)
       onPrev()
     }
@@ -104,6 +103,7 @@ export default function GrammarDetailModal({
       onNext()
     }
   }
+
   return (
     <AnimatePresence>
       <motion.div
@@ -147,7 +147,7 @@ export default function GrammarDetailModal({
                 </div>
                 <button
                   onClick={onClose}
-                  className="absolute top-2 right-2 p-4 -m-2 z-10" // 터치 영역 크게 확보
+                  className="absolute top-2 right-2 p-4 -m-2 z-10"
                 >
                   <X className="w-6 h-6 text-white/70 hover:text-white" />
                 </button>
@@ -211,14 +211,14 @@ export default function GrammarDetailModal({
             <button
               onClick={handlePrevClick}
               disabled={!hasPrev}
-              className="p-2 rounded-full disabled:opacity-50 bg-transparent hover:bg-white/10"
+              className="p-2 rounded-full disabled:opacity-50 bg-transparent hover:bg-transparent"
             >
               <ChevronLeft className="w-6 h-6 text-white/70 hover:text-white" />
             </button>
             <button
               onClick={handleNextClick}
               disabled={!hasNext}
-              className="p-2 rounded-full disabled:opacity-50 bg-transparent hover:bg-white/10"
+              className="p-2 rounded-full disabled:opacity-50 bg-transparent hover:bg-transparent"
             >
               <ChevronRight className="w-6 h-6 text-white/70 hover:text-white" />
             </button>

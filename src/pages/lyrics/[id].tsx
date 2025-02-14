@@ -56,7 +56,6 @@ export default function LyricsPage() {
         }
 
         // 3. 언어 감지
-        const language = detectLanguage(captions[0].text)
         const songTitle = searchParams.get('title') || videoInfo.title
         const artist = searchParams.get('artist') || videoInfo.channelTitle
 

@@ -1,6 +1,6 @@
 // components/vocabulary/ItemDetailModal.tsx
 import React, { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 import { X, ChevronLeft, ChevronRight, Music, Book } from 'lucide-react'
 
 interface VocabularyItem {
@@ -81,11 +81,14 @@ export default function ItemDetailModal({
   }, [onPrev, onNext, onClose, hasPrev, hasNext])
 
   // 드래그 종료 시 오프셋에 따라 이전/다음 전환 (임계값: 50px)
-  const handleDragEnd = (e: any, { offset }: { offset: { x: number } }) => {
-    if (offset.x < -50 && hasNext) {
+  const handleDragEnd = (
+    e: MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo
+  ) => {
+    if (info.offset.x < -50 && hasNext) {
       setDirection(1)
       onNext()
-    } else if (offset.x > 50 && hasPrev) {
+    } else if (info.offset.x > 50 && hasPrev) {
       setDirection(-1)
       onPrev()
     }

@@ -82,7 +82,7 @@ export default function AdvancedTab({ lyric }: AdvancedTabProps) {
           {similar_expressions.map((item, index) => (
             <div key={index} className="mb-3 last:mb-0">
               <p className="text-white mb-2">
-                "{item.original_expression}" 과 비슷한 표현:
+                '{item.original_expression}' 과 비슷한 표현:
               </p>
               <ul className="list-disc list-inside pl-4 space-y-1">
                 {item.similar_expressions.map((expr, i) => (

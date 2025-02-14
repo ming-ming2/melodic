@@ -28,8 +28,6 @@ interface GrammarListProps {
 
 export default function GrammarList({
   items,
-  sortBy,
-  searchQuery,
   onItemClick,
   onHideItem,
 }: GrammarListProps) {
