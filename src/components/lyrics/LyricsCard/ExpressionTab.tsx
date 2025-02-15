@@ -58,15 +58,6 @@ export default function ExpressionTab({ lyric }: ExpressionTabProps) {
               )}
             </button>
           </div>
-
-          {/* 설명 */}
-          <div className="p-4 bg-gray-800/50">
-            <p className="text-gray-300 mb-4">{expressionItem.explanation}</p>
-            <div>
-              <p className="text-sm text-gray-400 mb-1">예문</p>
-              <p className="text-gray-300">{expressionItem.example}</p>
-            </div>
-          </div>
         </div>
       ))}
     </div>
