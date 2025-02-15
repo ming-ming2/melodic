@@ -1,10 +1,5 @@
 // utils/lyricsProcessor.ts
-import {
-  LyricLine,
-  ProcessedLyrics,
-  Expression,
-  AdvancedStudy,
-} from '@/types/lyrics'
+import { LyricLine, ProcessedLyrics, Expression } from '@/types/lyrics'
 import OpenAI from 'openai'
 
 const openai = new OpenAI({
@@ -36,11 +31,6 @@ export async function processVideoLyrics(
         words: analysis.words,
         grammar: analysis.grammar,
         expressions: analysis.expressions,
-        advanced_study: analysis.advanced_study,
-        timestamp: {
-          start: caption.start,
-          end: caption.end,
-        },
       }
 
       return lyricLine
@@ -74,7 +64,6 @@ interface LyricAnalysis {
     example: string
   }>
   expressions: Expression[]
-  advanced_study: AdvancedStudy
 }
 
 async function analyzeLyricLine(line: string): Promise<LyricAnalysis> {
@@ -194,16 +183,6 @@ async function analyzeLyricLine(line: string): Promise<LyricAnalysis> {
       words: result.words || [],
       grammar: result.grammar || [],
       expressions: result.expressions || [],
-      advanced_study: {
-        metaphorical_expressions:
-          result.advanced_study?.metaphorical_expressions || [],
-        pronunciation_tips: result.advanced_study?.pronunciation_tips || [],
-        similar_expressions: result.advanced_study?.similar_expressions || [],
-        real_life_usages: result.advanced_study?.real_life_usages || [],
-        advanced_grammar_explanations:
-          result.advanced_study?.advanced_grammar_explanations || [],
-        premium_only: true,
-      },
     }
   } catch (error) {
     console.error('Error analyzing lyric line:', error)
