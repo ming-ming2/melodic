@@ -153,7 +153,7 @@ export async function findBestMatchingVideo(
     let musicVideoResults: ScoredVideo[] = []
     for (const query of musicVideoQueries) {
       debugLogs.push(`뮤직비디오 검색 쿼리 시도: "${query}"`)
-      let params: Record<string, string> = {
+      const params: Record<string, string> = {
         part: 'snippet',
         q: query,
         type: 'video',
