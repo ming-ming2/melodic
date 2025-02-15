@@ -10,7 +10,7 @@ const RecentLearningList: React.FC = () => {
   const { recentLearnings, toggleFavorite } = useSongStore()
   const router = useRouter()
 
-  const handleSongClick = (songId: number) => {
+  const handleSongClick = () => {
     router.push(`/lyrics/betelgeuse_yuuri`)
   }
 
@@ -46,7 +46,7 @@ const RecentLearningList: React.FC = () => {
               height={64} // h-16은 4rem, 즉 64px
               className="w-16 h-16 rounded-lg mr-4 object-cover"
             />
-            <div className="flex-grow" onClick={() => handleSongClick(song.id)}>
+            <div className="flex-grow" onClick={() => handleSongClick()}>
               <h3 className="text-md font-semibold text-white">{song.title}</h3>
               <p className="text-sm text-gray-400">{song.artist}</p>
               <p className="text-xs text-gray-500 mt-1">
