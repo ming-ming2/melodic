@@ -5,7 +5,6 @@ import type { LyricLine } from '@/types/lyrics'
 import VocabularyTab from './VocabularyTab'
 import GrammarTab from './GrammarTab'
 import ExpressionTab from './ExpressionTab'
-import AdvancedTab from './AdvancedTab'
 
 interface LyricsCardProps {
   lyrics: LyricLine[]
@@ -13,13 +12,12 @@ interface LyricsCardProps {
   onIndexChange: (index: number) => void
 }
 
-type TabType = 'vocabulary' | 'grammar' | 'expressions' | 'advanced'
+type TabType = 'vocabulary' | 'grammar' | 'expressions'
 
 const tabData = [
-  { id: 'vocabulary', label: '단어', icon: '📚', premium: false },
-  { id: 'grammar', label: '문법', icon: '📖', premium: false },
-  { id: 'expressions', label: '표현', icon: '🗣️', premium: false },
-  { id: 'advanced', label: '심화', icon: '🎯', premium: true },
+  { id: 'vocabulary', label: '단어', icon: '📚' },
+  { id: 'grammar', label: '문법', icon: '📖' },
+  { id: 'expressions', label: '표현', icon: '🗣️' },
 ] as const
 
 export default function LyricsCard({
@@ -49,7 +47,7 @@ export default function LyricsCard({
       </div>
 
       {/* 탭 버튼 */}
-      <div className="px-4 grid grid-cols-4 gap-2 border-t border-b border-gray-800">
+      <div className="px-4 grid grid-cols-3 gap-2 border-t border-b border-gray-800">
         {tabData.map((tab) => (
           <button
             key={tab.id}
@@ -62,9 +60,6 @@ export default function LyricsCard({
           >
             <span className="text-lg mb-1">{tab.icon}</span>
             <span className="text-xs">{tab.label}</span>
-            {tab.premium && (
-              <span className="text-[10px] text-accent-400">Premium</span>
-            )}
           </button>
         ))}
       </div>
@@ -103,8 +98,6 @@ export default function LyricsCard({
         return <GrammarTab lyric={currentLyric} />
       case 'expressions':
         return <ExpressionTab lyric={currentLyric} />
-      case 'advanced':
-        return <AdvancedTab lyric={currentLyric} />
       default:
         return null
     }

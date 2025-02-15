@@ -92,7 +92,7 @@ export default function TutorialPage() {
 
         {/* 메인 콘텐츠 영역 */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 relative overflow-y-auto p-4">
+          <div className="flex-1 relative overflow-y-auto ${currentStep === 3 ? 'p-0' : 'p-4'}">
             <AnimatePresence mode="wait">
               <TutorialSections
                 currentStep={currentStep}

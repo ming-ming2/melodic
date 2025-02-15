@@ -1,7 +1,7 @@
-// utils/youtubeMatching.ts
 import { SpotifySearchResult } from '@/types/spotify'
 import { YouTubeSearchResult } from '@/types/youtube'
 
+// YouTube API 응답 인터페이스 정의
 interface YouTubeSearchResponse {
   items: Array<{
     id: {
@@ -10,6 +10,7 @@ interface YouTubeSearchResponse {
     snippet: {
       title: string
       channelTitle: string
+      channelId: string
       thumbnails: {
         default: {
           url: string
@@ -19,188 +20,394 @@ interface YouTubeSearchResponse {
   }>
 }
 
+interface YouTubeChannelSearchResponse {
+  items: Array<{
+    id: {
+      channelId: string
+    }
+    snippet: {
+      title: string
+      description: string
+    }
+  }>
+}
+
 interface ScoredVideo {
   video: YouTubeSearchResult
   score: number
 }
 
+/**
+ * normalizeString 함수: 제목 유사도 계산을 위해서만 사용 (부가 정보 제거)
+ */
 function normalizeString(str: string): string {
   return str
     .toLowerCase()
-    .replace(/\([^)]*\)/g, '') // 괄호와 그 안의 내용 제거
-    .replace(/\[[^\]]*\]/g, '') // 대괄호와 그 안의 내용 제거
-    .replace(/feat\.|ft\./g, '') // feat, ft 제거
-    .replace(/[^\w\s]/g, '') // 특수문자 제거
-    .replace(/\s+/g, ' ') // 연속된 공백을 하나로
+    .replace(/\([^)]*\)/gu, '') // 괄호와 그 안의 내용 제거
+    .replace(/\[[^\]]*\]/gu, '') // 대괄호와 그 안의 내용 제거
+    .replace(/feat\.|ft\./gu, '')
+    .replace(/[^\p{L}\p{N}\s]/gu, '')
+    .replace(/\s+/gu, ' ')
     .trim()
+}
+
+/**
+ * 원본 제목(raw title)을 사용하여 비공식 영상 판별 함수
+ * 단, 'official'이라는 단어가 포함되어 있다면 예외로 처리
+ */
+function isUnofficialVideo(rawTitle: string): boolean {
+  const lowerTitle = rawTitle.toLowerCase()
+  // 공식 영상이라면 'official' 키워드가 들어있을 가능성이 높음
+  if (lowerTitle.includes('official')) return false
+
+  const unofficialPatterns = [
+    'cover',
+    'live',
+    'remix',
+    'concert',
+    'reaction',
+    'dance',
+    'karaoke',
+    'lyrics',
+    'vietsub',
+    'romanji',
+  ]
+  return unofficialPatterns.some((pattern) => lowerTitle.includes(pattern))
 }
 
 function calculateSimilarity(str1: string, str2: string): number {
   const s1 = normalizeString(str1)
   const s2 = normalizeString(str2)
 
-  // 정확히 일치하는 경우
   if (s1 === s2) return 1
-
-  // 한 문자열이 다른 문자열에 포함되는 경우
   if (s1.includes(s2) || s2.includes(s1)) return 0.9
 
-  // 단어 단위로 비교
   const words1 = new Set(s1.split(' '))
   const words2 = new Set(s2.split(' '))
-
-  // 공통 단어 수 계산
   const commonWords = [...words1].filter((word) => words2.has(word))
-  const similarity = (2.0 * commonWords.length) / (words1.size + words2.size)
-
-  return similarity
+  return (2.0 * commonWords.length) / (words1.size + words2.size)
 }
 
-// 공식 영상 관련 상수들
-const OFFICIAL_TITLE_PATTERNS = [
-  'official music video',
-  'official video',
-  'official mv',
-  'm/v',
-  'official audio',
-  'official lyric video',
-] as const
+// 아티스트 공식 채널 찾기 함수
+async function findOfficialArtistChannel(
+  artistName: string
+): Promise<string | null> {
+  try {
+    const normalizedArtistName = normalizeString(artistName)
+    const response = await fetch(
+      `https://www.googleapis.com/youtube/v3/search?${new URLSearchParams({
+        part: 'snippet',
+        q: `${artistName} official channel`,
+        type: 'channel',
+        maxResults: '5',
+        key: process.env.NEXT_PUBLIC_YOUTUBE_API_KEY || '',
+      })}`
+    )
 
-const UNOFFICIAL_PATTERNS = [
-  'cover',
-  'live',
-  'remix',
-  'concert',
-  'reaction',
-  'dance practice',
-  'guitar cover',
-  'drum cover',
-  'piano cover',
-  'vocal cover',
-  'lyrics',
-  'karaoke',
-] as const
+    if (!response.ok) {
+      console.error('findOfficialArtistChannel: Response not OK')
+      return null
+    }
+
+    const data: YouTubeChannelSearchResponse = await response.json()
+    if (!data.items?.length) return null
+
+    const officialChannel = data.items.find((channel) => {
+      const normalizedChannelTitle = normalizeString(channel.snippet.title)
+      return (
+        normalizedChannelTitle.includes(normalizedArtistName) &&
+        (normalizedChannelTitle.includes('official') ||
+          normalizedChannelTitle.includes('channel'))
+      )
+    })
+
+    return officialChannel ? officialChannel.id.channelId : null
+  } catch (error) {
+    console.error('Error finding official channel:', error)
+    return null
+  }
+}
 
 export async function findBestMatchingVideo(
   track: SpotifySearchResult
 ): Promise<YouTubeSearchResult | null> {
+  const debugLogs: string[] = []
   try {
-    // 검색 쿼리 (모든 쿼리의 결과를 모음)
-    const searchQueries = [
+    // 1. 아티스트 공식 채널 찾기
+    const officialChannelId = await findOfficialArtistChannel(track.artist)
+    if (!officialChannelId) {
+      debugLogs.push(`공식 채널을 찾지 못함: ${track.artist}`)
+    } else {
+      debugLogs.push(`공식 채널 ID 발견: ${officialChannelId}`)
+    }
+
+    // ---------------------------
+    // 2. 공식 뮤직비디오 검색 (우선 단계)
+    // ---------------------------
+    const musicVideoQueries = [
       `${track.title} ${track.artist} official music video`,
       `${track.title} ${track.artist} official video`,
-      `${track.title} ${track.artist} official mv`,
       `${track.title} ${track.artist} mv`,
-      `${track.title} ${track.artist} official`,
     ]
 
-    let allResults: ScoredVideo[] = []
+    let musicVideoResults: ScoredVideo[] = []
+    for (const query of musicVideoQueries) {
+      debugLogs.push(`뮤직비디오 검색 쿼리 시도: "${query}"`)
+      let params: Record<string, string> = {
+        part: 'snippet',
+        q: query,
+        type: 'video',
+        videoCategoryId: '10',
+        maxResults: '15',
+        key: process.env.NEXT_PUBLIC_YOUTUBE_API_KEY || '',
+      }
+      if (officialChannelId) {
+        params.channelId = officialChannelId
+      }
 
-    for (const query of searchQueries) {
-      const response = await fetch(
-        `https://www.googleapis.com/youtube/v3/search?${new URLSearchParams({
-          part: 'snippet',
-          q: query,
-          type: 'video',
-          videoCategoryId: '10',
-          maxResults: '10',
-          key: process.env.NEXT_PUBLIC_YOUTUBE_API_KEY || '',
-        })}`
+      let response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?${new URLSearchParams(
+          params
+        )}`
       )
+      if (!response.ok) {
+        debugLogs.push(`뮤직비디오 쿼리 "${query}" 실패: Response not OK.`)
+        continue
+      }
 
-      if (!response.ok) continue
-
-      const data: YouTubeSearchResponse = await response.json()
-      if (!data.items?.length) continue
+      let data: YouTubeSearchResponse = await response.json()
+      if (!data.items?.length && officialChannelId) {
+        debugLogs.push(
+          `뮤직비디오 쿼리 "${query}" - 공식 채널 필터 결과 없음, 채널 필터 없이 재시도`
+        )
+        const fallbackParams = { ...params }
+        delete fallbackParams.channelId
+        response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?${new URLSearchParams(
+            fallbackParams
+          )}`
+        )
+        if (response.ok) {
+          data = await response.json()
+        }
+      }
+      if (!data.items?.length) {
+        debugLogs.push(`뮤직비디오 쿼리 "${query}" 결과 0건.`)
+        continue
+      }
 
       const scoredResults: ScoredVideo[] = data.items.map((item) => {
-        const videoTitle = item.snippet.title
-        const normalizedVideoTitle = normalizeString(videoTitle)
-        const normalizedTrackTitle = normalizeString(track.title)
-        const normalizedTrackArtist = normalizeString(track.artist)
-
-        // 비공식 패턴이 포함된 영상은 제외
-        if (
-          UNOFFICIAL_PATTERNS.some((pattern) =>
-            normalizedVideoTitle.includes(pattern)
-          )
-        ) {
+        // 원본 제목을 사용해 비공식 판별
+        if (isUnofficialVideo(item.snippet.title)) {
           return { video: createVideoResult(item), score: -1 }
         }
 
-        // 기본 제목 유사도 (트랙 제목과 아티스트명을 함께 비교)
+        const videoTitle = item.snippet.title
+        const channelTitle = item.snippet.channelTitle
+        const normalizedVideoTitle = normalizeString(videoTitle)
+        const normalizedChannelTitle = normalizeString(channelTitle)
+        const normalizedTrackArtist = normalizeString(track.artist)
+
+        let officialScore = 0
+        if (item.snippet.channelId === officialChannelId) {
+          officialScore += 1.0
+        }
+
+        const musicVideoPatterns = [
+          'official music video',
+          'official video',
+          'official mv',
+          'music video',
+          'music clip',
+        ]
+        if (
+          musicVideoPatterns.some((pattern) =>
+            normalizedVideoTitle.includes(pattern)
+          )
+        ) {
+          officialScore += 0.5
+        }
+
+        if (normalizedChannelTitle.includes(normalizedTrackArtist)) {
+          officialScore += 0.3
+        }
+
+        if (normalizedVideoTitle.includes('audio')) {
+          officialScore -= 0.2
+        }
+
         const titleSimilarity = calculateSimilarity(
           videoTitle,
           `${track.title} ${track.artist}`
         )
+        const totalScore = titleSimilarity + officialScore
+
+        return { video: createVideoResult(item), score: totalScore }
+      })
+
+      const validResults = scoredResults
+        .filter((result) => result.score > 0.7)
+        .sort((a, b) => b.score - a.score)
+      if (validResults.length === 0) {
+        debugLogs.push(
+          `뮤직비디오 쿼리 "${query}"에서 필터링 후 유효한 결과가 없음.`
+        )
+      } else {
+        debugLogs.push(
+          `뮤직비디오 쿼리 "${query}"에서 유효한 결과 ${validResults.length}건 발견.`
+        )
+      }
+      musicVideoResults = musicVideoResults.concat(validResults)
+    }
+
+    if (musicVideoResults.length > 0) {
+      const bestMatch = musicVideoResults.sort((a, b) => b.score - a.score)[0]
+      console.log('Found Official Music Video:', {
+        title: bestMatch.video.title,
+        channel: bestMatch.video.channelTitle,
+        searchedFor: `${track.title} - ${track.artist}`,
+        score: bestMatch.score,
+      })
+      return bestMatch.video
+    } else {
+      debugLogs.push(
+        `공식 뮤직비디오를 찾지 못함: ${track.title} - ${track.artist} (쿼리: ${musicVideoQueries.join(
+          ', '
+        )})`
+      )
+    }
+
+    // ---------------------------
+    // 3. 공식 음원(오디오) 검색 (뮤직비디오가 없을 경우)
+    // ---------------------------
+    const audioQueries = [
+      `${track.title} ${track.artist} official audio`,
+      `${track.title} ${track.artist} audio`,
+    ]
+    let audioResults: ScoredVideo[] = []
+    for (const query of audioQueries) {
+      debugLogs.push(`오디오 검색 쿼리 시도: "${query}"`)
+      let params: Record<string, string> = {
+        part: 'snippet',
+        q: query,
+        type: 'video',
+        videoCategoryId: '10',
+        maxResults: '15',
+        key: process.env.NEXT_PUBLIC_YOUTUBE_API_KEY || '',
+      }
+      if (officialChannelId) {
+        params.channelId = officialChannelId
+      }
+
+      let response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?${new URLSearchParams(
+          params
+        )}`
+      )
+      if (!response.ok) {
+        debugLogs.push(`오디오 쿼리 "${query}" 실패: Response not OK.`)
+        continue
+      }
+
+      let data: YouTubeSearchResponse = await response.json()
+      if (!data.items?.length && officialChannelId) {
+        debugLogs.push(
+          `오디오 쿼리 "${query}" - 공식 채널 필터 결과 없음, 채널 필터 없이 재시도`
+        )
+        const fallbackParams = { ...params }
+        delete fallbackParams.channelId
+        response = await fetch(
+          `https://www.googleapis.com/youtube/v3/search?${new URLSearchParams(
+            fallbackParams
+          )}`
+        )
+        if (response.ok) {
+          data = await response.json()
+        }
+      }
+      if (!data.items?.length) {
+        debugLogs.push(`오디오 쿼리 "${query}" 결과 0건.`)
+        continue
+      }
+
+      const scoredResults: ScoredVideo[] = data.items.map((item) => {
+        if (isUnofficialVideo(item.snippet.title)) {
+          return { video: createVideoResult(item), score: -1 }
+        }
+
+        const videoTitle = item.snippet.title
+        const channelTitle = item.snippet.channelTitle
+        const normalizedVideoTitle = normalizeString(videoTitle)
+        const normalizedChannelTitle = normalizeString(channelTitle)
+        const normalizedTrackArtist = normalizeString(track.artist)
 
         let officialScore = 0
+        if (item.snippet.channelId === officialChannelId) {
+          officialScore += 1.0
+        }
 
-        // 공식 패턴 체크 (비교시 모두 소문자로)
+        const audioPatterns = ['official audio', 'audio']
         if (
-          OFFICIAL_TITLE_PATTERNS.some((pattern) =>
+          audioPatterns.some((pattern) =>
             normalizedVideoTitle.includes(pattern)
           )
         ) {
-          officialScore += 0.3
-        }
-
-        // 보너스: 영상 제목에 트랙 제목이 포함된 경우
-        if (normalizedVideoTitle.includes(normalizedTrackTitle)) {
-          officialScore += 0.2
-        }
-
-        // 채널명 정규화 후 아티스트 포함 여부 체크
-        const normalizedChannelTitle = normalizeString(
-          item.snippet.channelTitle
-        )
-        if (normalizedChannelTitle.includes(normalizedTrackArtist)) {
           officialScore += 0.5
         }
 
-        // 채널명에 VEVO나 official 키워드가 있는 경우 추가 보너스
-        if (normalizedChannelTitle.includes('vevo')) {
+        if (normalizedChannelTitle.includes(normalizedTrackArtist)) {
           officialScore += 0.3
-        } else if (normalizedChannelTitle.includes('official')) {
-          officialScore += 0.2
         }
 
+        const titleSimilarity = calculateSimilarity(
+          videoTitle,
+          `${track.title} ${track.artist}`
+        )
         const totalScore = titleSimilarity + officialScore
 
-        return {
-          video: createVideoResult(item),
-          score: totalScore,
-        }
+        return { video: createVideoResult(item), score: totalScore }
       })
 
-      // 0.75 이상의 점수인 영상만 취합
-      const validResults = scoredResults.filter(
-        (result) => result.score >= 0.75
-      )
-      allResults = allResults.concat(validResults)
+      const validResults = scoredResults
+        .filter((result) => result.score > 0.7)
+        .sort((a, b) => b.score - a.score)
+      if (validResults.length === 0) {
+        debugLogs.push(
+          `오디오 쿼리 "${query}"에서 필터링 후 유효한 결과가 없음.`
+        )
+      } else {
+        debugLogs.push(
+          `오디오 쿼리 "${query}"에서 유효한 결과 ${validResults.length}건 발견.`
+        )
+      }
+      audioResults = audioResults.concat(validResults)
     }
 
-    if (allResults.length === 0) return null
+    if (audioResults.length > 0) {
+      const bestAudioMatch = audioResults.sort((a, b) => b.score - a.score)[0]
+      console.log('Found Official Audio:', {
+        title: bestAudioMatch.video.title,
+        channel: bestAudioMatch.video.channelTitle,
+        searchedFor: `${track.title} - ${track.artist}`,
+        score: bestAudioMatch.score,
+      })
+      return bestAudioMatch.video
+    } else {
+      debugLogs.push(
+        `공식 오디오를 찾지 못함: ${track.title} - ${track.artist} (쿼리: ${audioQueries.join(
+          ', '
+        )})`
+      )
+    }
 
-    // 점수 순으로 정렬하여 최고 점수를 가진 영상 선택
-    allResults.sort((a, b) => b.score - a.score)
-
-    // 로깅 추가
-    console.log('Found YouTube video:', {
-      title: allResults[0].video.title,
-      channel: allResults[0].video.channelTitle,
-      searchedFor: `${track.title} - ${track.artist}`,
-      score: allResults[0].score,
-    })
-
-    return allResults[0].video
+    console.error('No matching video found. Debug logs:', debugLogs)
+    return null
   } catch (error) {
     console.error('Error finding matching video:', error)
     return null
   }
 }
 
-// 헬퍼 함수
 function createVideoResult(
   item: YouTubeSearchResponse['items'][0]
 ): YouTubeSearchResult {

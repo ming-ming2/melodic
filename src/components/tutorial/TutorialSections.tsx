@@ -46,7 +46,7 @@ export default function TutorialSections({
         stiffness: 300,
         damping: 30,
       }}
-      className="h-full overflow-y-auto p-8"
+      className={`h-full overflow-y-auto ${currentStep === 3 ? 'p-0' : 'p-8'}`} // 실습 단계일 때만 패딩 제거
     >
       {renderSection()}
     </motion.div>

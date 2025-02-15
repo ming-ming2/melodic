@@ -1,14 +1,12 @@
-// pages/lyrics/[id].tsx
+// components/tutorial/sections/DemoLyricsPage.tsx
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
-import Head from 'next/head'
-import AppLayout from '@/components/common/AppLayout'
-import YouTubePlayer from '@/components/lyrics/YouTubePlayer/index'
-import LyricsCard from '@/components/lyrics/LyricsCard/index'
+import YouTubePlayer from '@/components/lyrics/YouTubePlayer'
+import LyricsCard from '@/components/lyrics/LyricsCard'
 import { TUTORIAL_SONG_DATA } from '@/utils/tutorialDummyData'
 import { getVideoCaption, matchLyricsWithCaptions } from '@/utils/youtubeUtils'
 import { LyricLine } from '@/types/lyrics'
-import LoadingSpinner from '@/components/common/LoadingSpinner' // 추가
+import LoadingSpinner from '@/components/common/LoadingSpinner'
+
 interface TimedLyric extends LyricLine {
   timestamp: {
     start: number
@@ -17,8 +15,7 @@ interface TimedLyric extends LyricLine {
   similarity: number
 }
 
-export default function LyricsPage() {
-  const router = useRouter()
+const DemoLyricsPage = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [timedLyrics, setTimedLyrics] = useState<TimedLyric[]>([])
@@ -93,50 +90,43 @@ export default function LyricsPage() {
       setIsUserNavigation(false)
     }, 500)
   }, [])
-
   return (
-    <>
-      <Head>
-        <title>{TUTORIAL_SONG_DATA.title} - Melodic</title>
-        <meta name="theme-color" content="#111827" />
-      </Head>
-
-      <AppLayout
-        showBottomNav={false}
-        headerTitle={TUTORIAL_SONG_DATA.title}
-        onBack={() => router.back()}
-      >
-        <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
-          {/* 유튜브 플레이어 영역 */}
-          <div className="w-full lg:w-1/2">
-            <div className="w-full lg:sticky lg:top-14">
-              <div className="aspect-video w-full">
-                {!isLoading && timedLyrics.length > 0 && (
-                  <YouTubePlayer
-                    videoId={TUTORIAL_SONG_DATA.youtube_id}
-                    currentLyric={timedLyrics[currentIndex].timestamp}
-                    onTimeUpdate={handleTimeUpdate}
-                    isUserNavigation={isUserNavigation}
-                  />
-                )}
-              </div>
+    <div className="w-full">
+      {' '}
+      {/* 전체 너비로 확장 */}
+      <div className="flex flex-col lg:flex-row w-full">
+        {' '}
+        {/* 너비 100% 보장 */}
+        {/* YouTube Player Section */}
+        <div className="w-full lg:w-1/2">
+          <div className="w-full">
+            <div className="aspect-video w-full">
+              {!isLoading && timedLyrics.length > 0 && (
+                <YouTubePlayer
+                  videoId={TUTORIAL_SONG_DATA.youtube_id}
+                  currentLyric={timedLyrics[currentIndex].timestamp}
+                  onTimeUpdate={handleTimeUpdate}
+                  isUserNavigation={isUserNavigation}
+                />
+              )}
             </div>
           </div>
-
-          {/* 가사 카드 영역 */}
-          <div className="w-full lg:w-1/2 bg-gray-900 lg:h-[calc(100vh-56px)] lg:overflow-hidden">
-            {isLoading ? (
-              <LoadingSpinner />
-            ) : (
-              <LyricsCard
-                lyrics={timedLyrics}
-                currentIndex={currentIndex}
-                onIndexChange={handleManualIndexChange}
-              />
-            )}
-          </div>
         </div>
-      </AppLayout>
-    </>
+        {/* Lyrics Card Section */}
+        <div className="w-full lg:w-1/2 bg-gray-900 h-[calc(100vh-10rem)] overflow-hidden">
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <LyricsCard
+              lyrics={timedLyrics}
+              currentIndex={currentIndex}
+              onIndexChange={handleManualIndexChange}
+            />
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
+
+export default DemoLyricsPage
