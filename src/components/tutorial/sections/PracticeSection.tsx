@@ -30,18 +30,7 @@ const PracticeSection = ({ onPremiumFeatureClick }: PracticeSectionProps) => {
       >
         <DemoLyricsPage />
       </motion.div>
-      <div className="text-center mt-8 px-4">
-        {' '}
-        {/* 패딩 추가 */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={onPremiumFeatureClick}
-          className="bg-accent-600 text-white px-6 py-3 rounded-xl hover:bg-accent-700 transition-colors"
-        >
-          더 많은 학습 기능 체험하기
-        </motion.button>
-      </div>
+      <div className="text-center mt-8 px-4"> {/* 패딩 추가 */}</div>
     </div>
   )
 }

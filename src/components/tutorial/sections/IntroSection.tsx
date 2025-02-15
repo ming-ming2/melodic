@@ -8,7 +8,6 @@ function formatKoreanText(text: string) {
   return text.replace(/([.?!])\s+/g, '$1\u00A0')
 }
 
-// 방향에 따라 슬라이드 애니메이션을 제어하는 variants
 const swipeVariants = {
   initial: (direction: number) => ({
     opacity: 0,
@@ -26,7 +25,6 @@ const swipeVariants = {
 
 export default function IntroSection() {
   const [currentHighlight, setCurrentHighlight] = useState(0)
-  // direction: 1이면 오른쪽(다음), -1이면 왼쪽(이전)
   const [direction, setDirection] = useState(0)
 
   const serviceHighlights = [
@@ -65,8 +63,8 @@ export default function IntroSection() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-2 h-full flex flex-col">
-      <div className="text-center mb-2">
+    <div className="container mx-auto px-2 flex flex-col">
+      <div className="text-center mb-4">
         <Image
           src="/logo.png"
           alt="Melodic 로고"
@@ -84,8 +82,8 @@ export default function IntroSection() {
         </p>
       </div>
 
-      <div className="flex-1 flex items-center justify-center relative">
-        {/* 드래그 가능한 영역 */}
+      {/* 드래그 가능한 영역을 flex-1 중앙 정렬 대신 상단에 배치 */}
+      <div className="relative mb-4">
         <motion.div
           drag="x"
           dragElastic={0.5}
@@ -94,7 +92,7 @@ export default function IntroSection() {
             if (offset.x < -50) handleNext()
             else if (offset.x > 50) handlePrev()
           }}
-          className="w-full max-w-md relative"
+          className="w-full max-w-md mx-auto relative"
         >
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
@@ -131,7 +129,7 @@ export default function IntroSection() {
           </AnimatePresence>
         </motion.div>
 
-        {/* 화살표 버튼 - 드래그 영역 외부에 배치되어 고정됨 */}
+        {/* 데스크톱용 화살표 버튼 */}
         <button
           onClick={handlePrev}
           className="hidden md:block absolute left-0 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
