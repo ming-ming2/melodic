@@ -27,7 +27,7 @@ export default function TutorialSections({
       case 2:
         return <PremiumSection />
       case 3:
-        return <PracticeSection onPremiumFeatureClick={onPremiumFeatureClick} />
+        return <PracticeSection />
       case 4:
         return <FAQSection />
       default:

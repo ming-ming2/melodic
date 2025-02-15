@@ -7,7 +7,7 @@ interface PracticeSectionProps {
   onPremiumFeatureClick: () => void
 }
 
-const PracticeSection = ({ onPremiumFeatureClick }: PracticeSectionProps) => {
+const PracticeSection = () => {
   return (
     <div className="w-full">
       {' '}
