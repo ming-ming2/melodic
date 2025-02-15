@@ -11,7 +11,7 @@ const RecentLearningList: React.FC = () => {
   const router = useRouter()
 
   const handleSongClick = (songId: number) => {
-    router.push(`/learn/${songId}`)
+    router.push(`/lyrics/betelgeuse_yuuri`)
   }
 
   const sortedLearnings = [...recentLearnings].sort(
