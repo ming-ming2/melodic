@@ -3,10 +3,6 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import DemoLyricsPage from './DemoLyricsPage'
 
-interface PracticeSectionProps {
-  onPremiumFeatureClick: () => void
-}
-
 const PracticeSection = () => {
   return (
     <div className="w-full">
