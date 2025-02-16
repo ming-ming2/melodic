@@ -37,7 +37,11 @@ export default function GrammarTab({ lyric }: GrammarTabProps) {
   ) => {
     setState((prev) => {
       const newSet = new Set(prev)
-      newSet.has(pattern) ? newSet.delete(pattern) : newSet.add(pattern)
+      if (newSet.has(pattern)) {
+        newSet.delete(pattern)
+      } else {
+        newSet.add(pattern)
+      }
       return newSet
     })
   }

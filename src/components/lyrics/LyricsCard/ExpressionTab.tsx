@@ -8,7 +8,6 @@ import {
   EyeOff,
 } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
-import exp from 'constants'
 
 // 텍스트 줄바꿈 처리를 위한 함수
 function formatKoreanText(text: string) {
@@ -43,9 +42,11 @@ export default function ExpressionTab({ lyric }: ExpressionTabProps) {
   ) => {
     setState((prev) => {
       const newSet = new Set(prev)
-      newSet.has(expression)
-        ? newSet.delete(expression)
-        : newSet.add(expression)
+      if (newSet.has(word)) {
+        newSet.delete(word)
+      } else {
+        newSet.add(word)
+      }
       return newSet
     })
   }

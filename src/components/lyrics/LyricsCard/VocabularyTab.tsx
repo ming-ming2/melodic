@@ -38,7 +38,11 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
   ) => {
     setState((prev) => {
       const newSet = new Set(prev)
-      newSet.has(word) ? newSet.delete(word) : newSet.add(word)
+      if (newSet.has(word)) {
+        newSet.delete(word)
+      } else {
+        newSet.add(word)
+      }
       return newSet
     })
   }
