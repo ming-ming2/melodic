@@ -22,9 +22,9 @@ export default function PremiumSection() {
       type: '프리미엄 플랜',
       features: [
         '무제한 노래 학습',
-        '표현 심화 분석',
-        '오프라인 학습 모드',
         '광고 없는 학습 환경',
+        '과학적인 방식의 학습 제공',
+        '오프라인 학습 모드',
       ],
       color: 'bg-gradient-to-br from-accent-600/20 to-accent-500/10',
       buttonText: '7일 무료 체험 시작',
@@ -42,9 +42,7 @@ export default function PremiumSection() {
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-8">
-        {/* <h2 className="text-2xl font-bold text-white mb-4">
-          프리미엄으로 학습의 차원을 높이세요
-        </h2> */}
+        <h2 className="text-2xl font-bold text-white mb-4">프리미엄 멤버십</h2>
         <p className="text-gray-400 max-w-2xl mx-auto">
           프리미엄으로 학습의 차원을 높이세요.
         </p>

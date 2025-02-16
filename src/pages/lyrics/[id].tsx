@@ -1,14 +1,14 @@
-// pages/lyrics/[id].tsx
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Head from 'next/head'
-import AppLayout from '@/components/common/AppLayout'
-import YouTubePlayer from '@/components/lyrics/YouTubePlayer/index'
-import LyricsCard from '@/components/lyrics/LyricsCard/index'
+import YouTubePlayer from '@/components/lyrics/YouTubePlayer'
+import LyricsCard from '@/components/lyrics/LyricsCard'
 import { TUTORIAL_SONG_DATA } from '@/utils/tutorialDummyData'
 import { getVideoCaption, matchLyricsWithCaptions } from '@/utils/youtubeUtils'
 import { LyricLine } from '@/types/lyrics'
-import LoadingSpinner from '@/components/common/LoadingSpinner' // 추가
+import LoadingSpinner from '@/components/common/LoadingSpinner'
+import { ChevronLeft } from 'lucide-react'
+
 interface TimedLyric extends LyricLine {
   timestamp: {
     start: number
@@ -59,41 +59,6 @@ export default function LyricsPage() {
     initializeLyrics()
   }, [])
 
-  const handleTimeUpdate = useCallback(
-    (currentTime: number) => {
-      if (!isLoading && timedLyrics.length > 0 && !isUserNavigation) {
-        const newIndex = timedLyrics.findIndex(
-          (lyric) =>
-            currentTime >= lyric.timestamp.start &&
-            currentTime < lyric.timestamp.end
-        )
-
-        if (
-          newIndex !== -1 &&
-          newIndex !== currentIndex &&
-          newIndex !== lastAutoUpdatedIndexRef.current
-        ) {
-          setCurrentIndex(newIndex)
-          lastAutoUpdatedIndexRef.current = newIndex
-        }
-      }
-    },
-    [isLoading, timedLyrics, currentIndex, isUserNavigation]
-  )
-
-  const handleManualIndexChange = useCallback((newIndex: number) => {
-    setIsUserNavigation(true)
-    setCurrentIndex(newIndex)
-
-    if (navigationTimeoutRef.current) {
-      clearTimeout(navigationTimeoutRef.current)
-    }
-
-    navigationTimeoutRef.current = setTimeout(() => {
-      setIsUserNavigation(false)
-    }, 500)
-  }, [])
-
   return (
     <>
       <Head>
@@ -101,44 +66,83 @@ export default function LyricsPage() {
         <meta name="theme-color" content="#111827" />
       </Head>
 
-      <AppLayout
-        showBottomNav={false}
-        headerTitle={TUTORIAL_SONG_DATA.title}
-        onBack={() => router.back()}
-      >
-        <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
-          {/* 유튜브 플레이어 영역 */}
-          <div className="w-full lg:w-1/2">
-            <div className="w-full lg:sticky lg:top-14">
-              <div className="aspect-video w-full">
-                {!isLoading && timedLyrics.length > 0 && (
-                  <YouTubePlayer
-                    videoId={TUTORIAL_SONG_DATA.youtube_id}
-                    currentLyric={timedLyrics[currentIndex].timestamp}
-                    onTimeUpdate={handleTimeUpdate}
-                    isUserNavigation={isUserNavigation}
-                  />
-                )}
-              </div>
+      <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md border-b border-gray-800 rounded-b-xl">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <button
+              onClick={() => router.back()}
+              className="text-white hover:text-accent-400 transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <div className="flex-1 text-center">
+              <h1 className="text-lg font-medium text-white">
+                {TUTORIAL_SONG_DATA.title}
+              </h1>
             </div>
           </div>
+        </div>
+      </header>
 
-          {/* 가사 카드 영역 */}
-          <div className="w-full lg:w-1/2 bg-gray-900 lg:min-h-screen flex flex-col">
-            {isLoading ? (
-              <LoadingSpinner />
-            ) : (
-              <div className="flex-grow overflow-auto">
-                <LyricsCard
-                  lyrics={timedLyrics}
-                  currentIndex={currentIndex}
-                  onIndexChange={handleManualIndexChange}
+      <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
+        <div className="w-full lg:w-1/2">
+          <div className="w-full lg:sticky lg:top-14">
+            <div className="aspect-video w-full">
+              {!isLoading && timedLyrics.length > 0 && (
+                <YouTubePlayer
+                  videoId={TUTORIAL_SONG_DATA.youtube_id}
+                  currentLyric={timedLyrics[currentIndex].timestamp}
+                  onTimeUpdate={(currentTime) => {
+                    if (
+                      !isLoading &&
+                      timedLyrics.length > 0 &&
+                      !isUserNavigation
+                    ) {
+                      const newIndex = timedLyrics.findIndex(
+                        (lyric) =>
+                          currentTime >= lyric.timestamp.start &&
+                          currentTime < lyric.timestamp.end
+                      )
+                      if (
+                        newIndex !== -1 &&
+                        newIndex !== currentIndex &&
+                        newIndex !== lastAutoUpdatedIndexRef.current
+                      ) {
+                        setCurrentIndex(newIndex)
+                        lastAutoUpdatedIndexRef.current = newIndex
+                      }
+                    }
+                  }}
+                  isUserNavigation={isUserNavigation}
                 />
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </AppLayout>
+
+        <div className="w-full lg:w-1/2 bg-gray-900 lg:min-h-screen flex flex-col">
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <div className="flex-grow overflow-auto">
+              <LyricsCard
+                lyrics={timedLyrics}
+                currentIndex={currentIndex}
+                onIndexChange={(newIndex) => {
+                  setIsUserNavigation(true)
+                  setCurrentIndex(newIndex)
+                  if (navigationTimeoutRef.current) {
+                    clearTimeout(navigationTimeoutRef.current)
+                  }
+                  navigationTimeoutRef.current = setTimeout(() => {
+                    setIsUserNavigation(false)
+                  }, 500)
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </>
   )
 }
