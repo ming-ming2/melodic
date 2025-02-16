@@ -30,14 +30,14 @@ const TUTORIAL_STEPS = [
     description: '주요 기능 알아보기',
   },
   {
-    icon: Star,
-    title: '프리미엄',
-    description: '무료 vs 프리미엄',
-  },
-  {
     icon: FileText,
     title: '실습',
     description: '직접 체험하기',
+  },
+  {
+    icon: Star,
+    title: '프리미엄',
+    description: '무료 vs 프리미엄',
   },
   {
     icon: HelpCircle,
@@ -92,7 +92,7 @@ export default function TutorialPage() {
 
         {/* 메인 콘텐츠 영역 */}
         <div className="flex-1 flex flex-col">
-          <div className="flex-1 relative overflow-y-auto ${currentStep === 3 ? 'p-0' : 'p-4'}">
+          <div className="flex-1 relative overflow-y-auto ${currentStep === 2 ? 'p-0' : 'p-4'}">
             <AnimatePresence mode="wait">
               <TutorialSections
                 currentStep={currentStep}

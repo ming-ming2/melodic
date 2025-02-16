@@ -1,4 +1,3 @@
-// components/tutorial/sections/FAQSection.tsx
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown } from 'lucide-react'
@@ -9,7 +8,6 @@ interface FAQItem {
   isPremium?: boolean
 }
 
-// IntroSection과 동일하게 줄바꿈 처리를 위한 함수
 function formatKoreanText(text: string) {
   return text.replace(/([.?!])\s+/g, '$1\u00A0')
 }
@@ -29,15 +27,15 @@ export default function FAQSection() {
         '현재 영어, 일본어, 프랑스어 등 다양한 언어의 노래를 제공하고 있으며, 지속적으로 언어와 곡을 추가하고 있습니다.',
     },
     {
+      question: '매일 얼마나 학습해야 하나요?',
+      answer:
+        '멜로딕은 유연한 학습 시스템으로, 원하는 만큼 자유롭게 학습할 수 있습니다. 하지만 효과적인 언어 학습을 위해 매일 15-30분 정도의 학습을 추천드립니다.',
+    },
+    {
       question: '프리미엄 멤버십의 장점은 무엇인가요?',
       answer:
         '프리미엄 멤버십은 무제한 노래 학습, 심화 문법 분석, 표현 학습, 오프라인 모드 등 다양한 추가 기능을 제공합니다.',
       isPremium: true,
-    },
-    {
-      question: '매일 얼마나 학습해야 하나요?',
-      answer:
-        '멜로딕은 유연한 학습 시스템으로, 원하는 만큼 자유롭게 학습할 수 있습니다. 하지만 효과적인 언어 학습을 위해 매일 15-30분 정도의 학습을 추천드립니다.',
     },
     {
       question: '노래 추천은 어떻게 이루어지나요?',
@@ -72,32 +70,27 @@ export default function FAQSection() {
         {FAQs.map((faq, index) => (
           <div
             key={index}
-            className={`
-              bg-gray-800 rounded-xl overflow-hidden
-              ${faq.isPremium ? 'border border-yellow-500/30' : ''}
-            `}
+            className={`bg-gray-800 rounded-xl overflow-hidden ${faq.isPremium ? 'border border-yellow-500/30' : ''}`}
           >
             <button
               onClick={() => toggleFAQ(index)}
-              className="w-full flex justify-between items-center p-5 text-left"
+              className="w-full flex items-start p-5 text-left"
             >
-              <span
-                className={`font-medium ${
-                  faq.isPremium ? 'text-yellow-500' : 'text-white'
-                }`}
-                style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
-              >
-                {formatKoreanText(faq.question)}
+              <div className="flex flex-col">
                 {faq.isPremium && (
-                  <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full">
+                  <span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full mb-1 self-start">
                     프리미엄
                   </span>
                 )}
-              </span>
+                <span
+                  className={`font-medium ${faq.isPremium ? 'text-yellow-500' : 'text-white'}`}
+                  style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+                >
+                  {formatKoreanText(faq.question)}
+                </span>
+              </div>
               <ChevronDown
-                className={`w-5 h-5 transition-transform ${
-                  openFAQ === index ? 'rotate-180' : ''
-                }`}
+                className={`w-5 h-5 transition-transform ml-auto ${openFAQ === index ? 'rotate-180' : ''}`}
               />
             </button>
 
