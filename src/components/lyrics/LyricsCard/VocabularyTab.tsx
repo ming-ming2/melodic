@@ -32,22 +32,23 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
 
   const totalPages = words.length // 한 페이지당 1개씩
 
-  const handleToggleSave = (word: string) => {
-    setSavedWords((prev) => {
+  const toggleSetItem = (
+    setState: React.Dispatch<React.SetStateAction<Set<string>>>,
+    word: string
+  ) => {
+    setState((prev) => {
       const newSet = new Set(prev)
       newSet.has(word) ? newSet.delete(word) : newSet.add(word)
       return newSet
     })
-    // TODO: 실제 저장 로직 구현
+  }
+
+  const handleToggleSave = (word: string) => {
+    toggleSetItem(setSavedWords, word)
   }
 
   const handleToggleHide = (word: string) => {
-    setHiddenWords((prev) => {
-      const newSet = new Set(prev)
-      newSet.has(word) ? newSet.delete(word) : newSet.add(word)
-      return newSet
-    })
-    // TODO: 실제 숨김 로직 구현
+    toggleSetItem(setHiddenWords, word)
   }
 
   const handleNext = () => {

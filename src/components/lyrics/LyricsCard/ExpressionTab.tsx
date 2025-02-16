@@ -8,6 +8,7 @@ import {
   EyeOff,
 } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
+import exp from 'constants'
 
 // 텍스트 줄바꿈 처리를 위한 함수
 function formatKoreanText(text: string) {
@@ -36,25 +37,26 @@ export default function ExpressionTab({ lyric }: ExpressionTabProps) {
 
   const totalPages = expressions.length
 
-  const handleToggleSave = (expression: string) => {
-    setSavedExpressions((prev) => {
+  const toggleSetItem = (
+    setState: React.Dispatch<React.SetStateAction<Set<string>>>,
+    expression: string
+  ) => {
+    setState((prev) => {
       const newSet = new Set(prev)
       newSet.has(expression)
         ? newSet.delete(expression)
         : newSet.add(expression)
       return newSet
     })
+  }
+
+  const handleToggleSave = (expression: string) => {
+    toggleSetItem(setSavedExpressions, expression)
     // TODO: 실제 저장 로직 구현
   }
 
   const handleToggleHide = (expression: string) => {
-    setHiddenExpressions((prev) => {
-      const newSet = new Set(prev)
-      newSet.has(expression)
-        ? newSet.delete(expression)
-        : newSet.add(expression)
-      return newSet
-    })
+    toggleSetItem(setHiddenExpressions, expression)
     // TODO: 실제 숨김 로직 구현
   }
 

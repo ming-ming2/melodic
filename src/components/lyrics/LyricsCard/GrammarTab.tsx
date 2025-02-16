@@ -31,21 +31,24 @@ export default function GrammarTab({ lyric }: GrammarTabProps) {
 
   const totalPages = grammarItems.length
 
-  const handleToggleSave = (pattern: string) => {
-    setSavedGrammars((prev) => {
+  const toggleSetItem = (
+    setState: React.Dispatch<React.SetStateAction<Set<string>>>,
+    pattern: string
+  ) => {
+    setState((prev) => {
       const newSet = new Set(prev)
       newSet.has(pattern) ? newSet.delete(pattern) : newSet.add(pattern)
       return newSet
     })
+  }
+
+  const handleToggleSave = (pattern: string) => {
+    toggleSetItem(setSavedGrammars, pattern)
     // TODO: 실제 저장 로직 구현
   }
 
   const handleToggleHide = (pattern: string) => {
-    setHiddenGrammars((prev) => {
-      const newSet = new Set(prev)
-      newSet.has(pattern) ? newSet.delete(pattern) : newSet.add(pattern)
-      return newSet
-    })
+    toggleSetItem(setHiddenGrammars, pattern)
     // TODO: 실제 숨김 로직 구현
   }
 
