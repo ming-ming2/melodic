@@ -3,7 +3,6 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   X,
-  User,
   LogIn,
   UserPlus,
   Book,
