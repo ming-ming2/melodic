@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Head from 'next/head'
 import YouTubePlayer from '@/components/lyrics/YouTubePlayer'
