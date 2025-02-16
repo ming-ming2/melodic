@@ -1,5 +1,6 @@
-// components/tutorial/sections/DemoLyricsPage.tsx
+// pages/lyrics/[id].tsx (DemoLyricsPage)
 import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import YouTubePlayer from '@/components/lyrics/YouTubePlayer'
 import LyricsCard from '@/components/lyrics/LyricsCard'
 import { TUTORIAL_SONG_DATA } from '@/utils/tutorialDummyData'
@@ -15,7 +16,7 @@ interface TimedLyric extends LyricLine {
   similarity: number
 }
 
-const DemoLyricsPage = () => {
+const DemoLyricsPage = ({ onBack }: { onBack: () => void }) => {
   const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [timedLyrics, setTimedLyrics] = useState<TimedLyric[]>([])
@@ -91,39 +92,68 @@ const DemoLyricsPage = () => {
     }, 500)
   }, [])
   return (
-    <div className="w-full">
-      {' '}
-      {/* 전체 너비로 확장 */}
-      <div className="flex flex-col lg:flex-row w-full">
-        {' '}
-        {/* 너비 100% 보장 */}
-        {/* YouTube Player Section */}
-        <div className="w-full lg:w-1/2">
-          <div className="w-full">
-            <div className="aspect-video w-full">
-              {!isLoading && timedLyrics.length > 0 && (
-                <YouTubePlayer
-                  videoId={TUTORIAL_SONG_DATA.youtube_id}
-                  currentLyric={timedLyrics[currentIndex].timestamp}
-                  onTimeUpdate={handleTimeUpdate}
-                  isUserNavigation={isUserNavigation}
-                />
-              )}
-            </div>
-          </div>
+    <div className="relative h-screen flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
+      {/* 상단 뒤로가기 버튼 */}
+      <button
+        onClick={onBack}
+        className="absolute top-4 left-4 z-50 text-white bg-gray-800/50 backdrop-blur-sm p-2 rounded-full hover:bg-gray-700 transition-colors"
+      >
+        ← 튜토리얼로 돌아가기
+      </button>
+
+      {/* YouTube Player 영역 */}
+      <div className="w-full lg:w-1/2 lg:sticky lg:top-14">
+        <div className="aspect-video w-full">
+          {!isLoading && timedLyrics.length > 0 && (
+            <YouTubePlayer
+              videoId={TUTORIAL_SONG_DATA.youtube_id}
+              currentLyric={timedLyrics[currentIndex].timestamp}
+              onTimeUpdate={handleTimeUpdate}
+              isUserNavigation={isUserNavigation}
+            />
+          )}
         </div>
-        {/* Lyrics Card Section */}
-        <div className="w-full lg:w-1/2 bg-gray-900 h-[calc(100vh-10rem)] overflow-hidden">
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : (
+      </div>
+
+      {/* 가사 카드 영역 */}
+      <div className="w-full lg:w-1/2 bg-gray-900 lg:h-[calc(100vh-56px)] lg:overflow-hidden">
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : (
+          <>
             <LyricsCard
               lyrics={timedLyrics}
               currentIndex={currentIndex}
               onIndexChange={handleManualIndexChange}
             />
-          )}
-        </div>
+            {/* 하단 내비게이션 바 (데스크톱 전용) */}
+            <div className="hidden lg:flex justify-between items-center p-4 border-t border-gray-800 bg-gray-900">
+              <button
+                onClick={() =>
+                  handleManualIndexChange(
+                    currentIndex > 0 ? currentIndex - 1 : timedLyrics.length - 1
+                  )
+                }
+                className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6 text-white" />
+              </button>
+              <div className="text-sm text-gray-400">
+                {currentIndex + 1} / {timedLyrics.length}
+              </div>
+              <button
+                onClick={() =>
+                  handleManualIndexChange(
+                    currentIndex < timedLyrics.length - 1 ? currentIndex + 1 : 0
+                  )
+                }
+                className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

@@ -4,6 +4,11 @@ import { AnimatePresence, motion, PanInfo } from 'framer-motion'
 import { ChevronLeft, ChevronRight, BookmarkPlus, Check } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 
+// 텍스트 줄바꿈 처리를 위한 함수
+function formatKoreanText(text: string) {
+  return text.replace(/([.?!])\s+/g, '$1\u00A0')
+}
+
 interface VocabularyTabProps {
   lyric: LyricLine
 }
@@ -12,9 +17,14 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
   const [savedWords, setSavedWords] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(0)
   const [direction, setDirection] = useState(0)
-
   const words = lyric.words || []
-  const totalPages = Math.ceil(words.length / 2)
+
+  // lyric prop이 바뀌면 currentPage를 초기화
+  useEffect(() => {
+    setCurrentPage(0)
+  }, [lyric])
+
+  const totalPages = words.length // 한 페이지당 1개씩
 
   const handleSaveWord = (word: string) => {
     setSavedWords((prev) => {
@@ -48,14 +58,11 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
     }
   }
 
-  // 키보드 좌우 화살표로 페이지 전환
+  // 키보드 좌우 화살표 처리
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') {
-        handlePrev()
-      } else if (e.key === 'ArrowRight') {
-        handleNext()
-      }
+      if (e.key === 'ArrowLeft') handlePrev()
+      else if (e.key === 'ArrowRight') handleNext()
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
@@ -66,18 +73,15 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
       opacity: 0,
       x: direction > 0 ? 100 : -100,
     }),
-    animate: {
-      opacity: 1,
-      x: 0,
-    },
+    animate: { opacity: 1, x: 0 },
     exit: (direction: number) => ({
       opacity: 0,
       x: direction > 0 ? -100 : 100,
     }),
   }
 
-  // 현재 페이지에 해당하는 단어(최대 2개) 추출
-  const currentWords = words.slice(currentPage * 2, currentPage * 2 + 2)
+  // 한 페이지에 1개씩
+  const currentWords = words.slice(currentPage, currentPage + 1)
 
   if (words.length === 0) {
     return (
@@ -109,10 +113,24 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
               {/* 단어 헤더 */}
               <div className="flex items-center justify-between p-4 border-b border-gray-700">
                 <div>
-                  <h3 className="text-lg font-medium text-white">
-                    {wordItem.word}
+                  <h3
+                    className="text-lg font-medium text-white"
+                    style={{
+                      wordBreak: 'keep-all',
+                      overflowWrap: 'break-word',
+                    }}
+                  >
+                    {formatKoreanText(wordItem.word)}
                   </h3>
-                  <p className="text-accent-400 text-sm">{wordItem.meaning}</p>
+                  <p
+                    className="text-accent-400 text-sm"
+                    style={{
+                      wordBreak: 'keep-all',
+                      overflowWrap: 'break-word',
+                    }}
+                  >
+                    {formatKoreanText(wordItem.meaning)}
+                  </p>
                 </div>
                 <button
                   onClick={() => handleSaveWord(wordItem.word)}
@@ -132,16 +150,40 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
 
               {/* 예문 */}
               <div className="p-4 bg-gray-800/50">
-                <p className="text-sm text-gray-400 mb-1">예문</p>
-                <p className="text-gray-300">{wordItem.example}</p>
+                <p
+                  className="text-sm text-gray-400 mb-1"
+                  style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+                >
+                  예문
+                </p>
+                <p
+                  className="text-gray-300"
+                  style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+                >
+                  {formatKoreanText(wordItem.example)}
+                </p>
               </div>
             </div>
           ))}
         </motion.div>
       </AnimatePresence>
 
-      {/* 단어가 2개보다 많을 때만 네비게이션 버튼 표시 */}
-      {words.length > 2 && (
+      {/* 페이지 인디케이터: 보라색 동그라미 */}
+      {words.length > 1 && (
+        <div className="absolute bottom-2 left-0 right-0 flex justify-center space-x-2">
+          {Array.from({ length: totalPages }).map((_, index) => (
+            <div
+              key={index}
+              className={`w-2 h-2 rounded-full ${
+                index === currentPage ? 'bg-purple-500' : 'bg-gray-600'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* 좌우 네비게이션 버튼 */}
+      {words.length > 1 && (
         <>
           <button
             onClick={handlePrev}

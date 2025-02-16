@@ -1,5 +1,5 @@
 // components/lyrics/LyricsCard/index.tsx
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 import VocabularyTab from './VocabularyTab'
@@ -28,11 +28,29 @@ export default function LyricsCard({
   const [activeTab, setActiveTab] = useState<TabType>('vocabulary')
   const currentLyric = lyrics[currentIndex]
 
+  // 가사가 바뀔 때 activeTab을 'vocabulary'로 리셋
+  useEffect(() => {
+    setActiveTab('vocabulary')
+  }, [currentLyric])
+
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'left') {
       onIndexChange(currentIndex === lyrics.length - 1 ? 0 : currentIndex + 1)
     } else if (direction === 'right') {
       onIndexChange(currentIndex === 0 ? lyrics.length - 1 : currentIndex - 1)
+    }
+  }
+
+  function renderTabContent() {
+    switch (activeTab) {
+      case 'vocabulary':
+        return <VocabularyTab lyric={currentLyric} />
+      case 'grammar':
+        return <GrammarTab lyric={currentLyric} />
+      case 'expressions':
+        return <ExpressionTab lyric={currentLyric} />
+      default:
+        return null
     }
   }
 
@@ -44,6 +62,25 @@ export default function LyricsCard({
           {currentLyric.original}
         </p>
         <p className="text-gray-400">{currentLyric.translated}</p>
+      </div>
+
+      {/* 가사 이동 네비게이션바 (가사와 탭 사이에 위치) */}
+      <div className="flex justify-between items-center p-4 border-t border-b border-gray-800">
+        <button
+          onClick={() => handleSwipe('right')}
+          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </button>
+        <div className="text-sm text-gray-400">
+          {currentIndex + 1} / {lyrics.length}
+        </div>
+        <button
+          onClick={() => handleSwipe('left')}
+          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+        >
+          <ChevronRight className="w-6 h-6 text-white" />
+        </button>
       </div>
 
       {/* 탭 버튼 */}
@@ -66,40 +103,6 @@ export default function LyricsCard({
 
       {/* 탭 컨텐츠 */}
       <div className="flex-1 overflow-y-auto p-4">{renderTabContent()}</div>
-
-      {/* 네비게이션 버튼 */}
-      <div className="flex justify-between items-center p-4 border-t border-gray-800">
-        <button
-          onClick={() => handleSwipe('right')}
-          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-        >
-          <ChevronLeft className="w-6 h-6 text-white" />
-        </button>
-
-        <div className="text-sm text-gray-400">
-          {currentIndex + 1} / {lyrics.length}
-        </div>
-
-        <button
-          onClick={() => handleSwipe('left')}
-          className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-        >
-          <ChevronRight className="w-6 h-6 text-white" />
-        </button>
-      </div>
     </div>
   )
-
-  function renderTabContent() {
-    switch (activeTab) {
-      case 'vocabulary':
-        return <VocabularyTab lyric={currentLyric} />
-      case 'grammar':
-        return <GrammarTab lyric={currentLyric} />
-      case 'expressions':
-        return <ExpressionTab lyric={currentLyric} />
-      default:
-        return null
-    }
-  }
 }

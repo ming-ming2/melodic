@@ -118,24 +118,17 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
-                      <User size={20} />
+                      <Settings size={20} />
                       <span>설정</span>
                     </Link>
-                    <Link
-                      href="/default"
-                      className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
-                      onClick={onClose}
-                    >
-                      <Settings size={20} />
-                      <span>학습 설정</span>
-                    </Link>
+
                     <Link
                       href="/onboarding"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >
                       <HelpCircle size={20} />
-                      <span>도움말</span>
+                      <span>튜토리얼</span>
                     </Link>
                   </div>
 

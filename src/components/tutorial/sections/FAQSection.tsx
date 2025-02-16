@@ -9,6 +9,11 @@ interface FAQItem {
   isPremium?: boolean
 }
 
+// IntroSection과 동일하게 줄바꿈 처리를 위한 함수
+function formatKoreanText(text: string) {
+  return text.replace(/([.?!])\s+/g, '$1\u00A0')
+}
+
 export default function FAQSection() {
   const [openFAQ, setOpenFAQ] = useState<number | null>(null)
 
@@ -49,9 +54,17 @@ export default function FAQSection() {
   return (
     <div className="container mx-auto">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold text-white mb-4">자주 묻는 질문</h2>
-        <p className="text-gray-400 max-w-2xl mx-auto">
-          멜로딕에 대해 궁금한 점을 여기서 해결해보세요.
+        <h2
+          className="text-3xl font-bold text-white mb-4"
+          style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+        >
+          {formatKoreanText('자주 묻는 질문')}
+        </h2>
+        <p
+          className="text-gray-400 max-w-2xl mx-auto"
+          style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+        >
+          {formatKoreanText('멜로딕에 대해 궁금한 점을 여기서 해결해보세요.')}
         </p>
       </div>
 
@@ -69,12 +82,12 @@ export default function FAQSection() {
               className="w-full flex justify-between items-center p-5 text-left"
             >
               <span
-                className={`
-                font-medium 
-                ${faq.isPremium ? 'text-yellow-500' : 'text-white'}
-              `}
+                className={`font-medium ${
+                  faq.isPremium ? 'text-yellow-500' : 'text-white'
+                }`}
+                style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
               >
-                {faq.question}
+                {formatKoreanText(faq.question)}
                 {faq.isPremium && (
                   <span className="ml-2 text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full">
                     프리미엄
@@ -82,10 +95,9 @@ export default function FAQSection() {
                 )}
               </span>
               <ChevronDown
-                className={`
-                  w-5 h-5 transition-transform 
-                  ${openFAQ === index ? 'rotate-180' : ''}
-                `}
+                className={`w-5 h-5 transition-transform ${
+                  openFAQ === index ? 'rotate-180' : ''
+                }`}
               />
             </button>
 
@@ -97,7 +109,15 @@ export default function FAQSection() {
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden"
                 >
-                  <div className="p-5 pt-0 text-gray-400">{faq.answer}</div>
+                  <div
+                    className="p-5 pt-0 text-gray-400"
+                    style={{
+                      wordBreak: 'keep-all',
+                      overflowWrap: 'break-word',
+                    }}
+                  >
+                    {formatKoreanText(faq.answer)}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

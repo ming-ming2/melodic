@@ -46,6 +46,11 @@ const FEATURES = [
   },
 ]
 
+// IntroSection과 동일하게 줄바꿈 처리를 위한 함수
+function formatKoreanText(text: string) {
+  return text.replace(/([.?!])\s+/g, '$1\u00A0')
+}
+
 export default function CoreFeaturesSection({
   onPremiumFeatureClick,
 }: CoreFeaturesProps) {
@@ -54,11 +59,17 @@ export default function CoreFeaturesSection({
   return (
     <div className="container mx-auto px-4">
       <div className="text-center mb-6">
-        <h2 className="text-xl md:text-2xl font-bold text-white mb-3">
-          멜로딕의 핵심 기능
+        <h2
+          className="text-xl md:text-2xl font-bold text-white mb-3"
+          style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+        >
+          {formatKoreanText('멜로딕의 핵심 기능')}
         </h2>
-        <p className="text-sm md:text-base text-gray-400 max-w-xl mx-auto">
-          음악을 통해 언어를 배우는 가장 즐거운 방법
+        <p
+          className="text-sm md:text-base text-gray-400 max-w-xl mx-auto"
+          style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+        >
+          {formatKoreanText('음악을 통해 언어를 배우는 가장 즐거운 방법')}
         </p>
       </div>
 
@@ -100,7 +111,12 @@ export default function CoreFeaturesSection({
                 {feature.title}
               </h3>
             </div>
-            <p className="text-xs text-gray-400 mb-2">{feature.description}</p>
+            <p
+              className="text-xs text-gray-400 mb-2"
+              style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+            >
+              {formatKoreanText(feature.description)}
+            </p>
             {feature.isPremium && (
               <button
                 onClick={onPremiumFeatureClick}

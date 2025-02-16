@@ -103,7 +103,7 @@ export default function AppLayout({
                             href="/onboarding"
                             className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white"
                           >
-                            도움말
+                            튜토리얼
                           </Link>
                           <button
                             onClick={() => useAuthStore.getState().logout()}
