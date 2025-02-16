@@ -124,15 +124,17 @@ export default function LyricsPage() {
           </div>
 
           {/* 가사 카드 영역 */}
-          <div className="w-full lg:w-1/2 bg-gray-900 lg:h-[calc(100vh-56px)] lg:overflow-hidden">
+          <div className="w-full lg:w-1/2 bg-gray-900 lg:min-h-screen flex flex-col">
             {isLoading ? (
               <LoadingSpinner />
             ) : (
-              <LyricsCard
-                lyrics={timedLyrics}
-                currentIndex={currentIndex}
-                onIndexChange={handleManualIndexChange}
-              />
+              <div className="flex-grow overflow-auto">
+                <LyricsCard
+                  lyrics={timedLyrics}
+                  currentIndex={currentIndex}
+                  onIndexChange={handleManualIndexChange}
+                />
+              </div>
             )}
           </div>
         </div>

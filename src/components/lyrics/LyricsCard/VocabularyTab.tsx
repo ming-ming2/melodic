@@ -1,7 +1,12 @@
-// components/lyrics/LyricsCard/VocabularyTab.tsx
 import React, { useEffect, useState } from 'react'
 import { AnimatePresence, motion, PanInfo } from 'framer-motion'
-import { ChevronLeft, ChevronRight, BookmarkPlus, Check } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookmarkPlus,
+  Check,
+  EyeOff,
+} from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 
 // 텍스트 줄바꿈 처리를 위한 함수
@@ -15,6 +20,7 @@ interface VocabularyTabProps {
 
 export default function VocabularyTab({ lyric }: VocabularyTabProps) {
   const [savedWords, setSavedWords] = useState<Set<string>>(new Set())
+  const [hiddenWords, setHiddenWords] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(0)
   const [direction, setDirection] = useState(0)
   const words = lyric.words || []
@@ -26,13 +32,22 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
 
   const totalPages = words.length // 한 페이지당 1개씩
 
-  const handleSaveWord = (word: string) => {
+  const handleToggleSave = (word: string) => {
     setSavedWords((prev) => {
       const newSet = new Set(prev)
-      newSet.add(word)
+      newSet.has(word) ? newSet.delete(word) : newSet.add(word)
       return newSet
     })
     // TODO: 실제 저장 로직 구현
+  }
+
+  const handleToggleHide = (word: string) => {
+    setHiddenWords((prev) => {
+      const newSet = new Set(prev)
+      newSet.has(word) ? newSet.delete(word) : newSet.add(word)
+      return newSet
+    })
+    // TODO: 실제 숨김 로직 구현
   }
 
   const handleNext = () => {
@@ -132,20 +147,36 @@ export default function VocabularyTab({ lyric }: VocabularyTabProps) {
                     {formatKoreanText(wordItem.meaning)}
                   </p>
                 </div>
-                <button
-                  onClick={() => handleSaveWord(wordItem.word)}
-                  className={`p-2 rounded-full transition-colors ${
-                    savedWords.has(wordItem.word)
-                      ? 'bg-accent-600 text-white'
-                      : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                  }`}
-                >
-                  {savedWords.has(wordItem.word) ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    <BookmarkPlus className="w-5 h-5" />
-                  )}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleToggleSave(wordItem.word)}
+                    className={`p-2 rounded-full transition-colors ${
+                      savedWords.has(wordItem.word)
+                        ? 'bg-accent-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    {savedWords.has(wordItem.word) ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      <BookmarkPlus className="w-5 h-5" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleToggleHide(wordItem.word)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      hiddenWords.has(wordItem.word)
+                        ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    }`}
+                  >
+                    {hiddenWords.has(wordItem.word) ? (
+                      <EyeOff className="w-5 h-5 text-red-500" />
+                    ) : (
+                      <EyeOff className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               {/* 예문 */}

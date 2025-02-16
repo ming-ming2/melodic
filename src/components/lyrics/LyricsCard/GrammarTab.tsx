@@ -1,7 +1,12 @@
-// components/lyrics/LyricsCard/GrammarTab.tsx
 import React, { useEffect, useState } from 'react'
 import { AnimatePresence, motion, PanInfo } from 'framer-motion'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  BookmarkPlus,
+  Check,
+  EyeOff,
+} from 'lucide-react'
 import type { LyricLine } from '@/types/lyrics'
 
 // 텍스트 포맷 함수
@@ -15,6 +20,8 @@ interface GrammarTabProps {
 
 export default function GrammarTab({ lyric }: GrammarTabProps) {
   const grammarItems = lyric.grammar || []
+  const [savedGrammars, setSavedGrammars] = useState<Set<string>>(new Set())
+  const [hiddenGrammars, setHiddenGrammars] = useState<Set<string>>(new Set())
   const [currentPage, setCurrentPage] = useState(0)
   const [direction, setDirection] = useState(0)
 
@@ -23,6 +30,24 @@ export default function GrammarTab({ lyric }: GrammarTabProps) {
   }, [lyric])
 
   const totalPages = grammarItems.length
+
+  const handleToggleSave = (pattern: string) => {
+    setSavedGrammars((prev) => {
+      const newSet = new Set(prev)
+      newSet.has(pattern) ? newSet.delete(pattern) : newSet.add(pattern)
+      return newSet
+    })
+    // TODO: 실제 저장 로직 구현
+  }
+
+  const handleToggleHide = (pattern: string) => {
+    setHiddenGrammars((prev) => {
+      const newSet = new Set(prev)
+      newSet.has(pattern) ? newSet.delete(pattern) : newSet.add(pattern)
+      return newSet
+    })
+    // TODO: 실제 숨김 로직 구현
+  }
 
   const handleNext = () => {
     if (totalPages <= 1) return
@@ -95,15 +120,47 @@ export default function GrammarTab({ lyric }: GrammarTabProps) {
           {currentGrammar.map((grammarItem, index) => (
             <div key={index} className="bg-gray-800 rounded-lg overflow-hidden">
               <div
-                className="p-4 border-b border-gray-700"
+                className="p-4 border-b border-gray-700 flex justify-between items-start"
                 style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
               >
-                <h3 className="text-lg font-medium text-accent-400 mb-2">
-                  {formatKoreanText(grammarItem.pattern)}
-                </h3>
-                <p className="text-white">
-                  {formatKoreanText(grammarItem.explanation)}
-                </p>
+                <div>
+                  <h3 className="text-lg font-medium text-accent-400 mb-2">
+                    {formatKoreanText(grammarItem.pattern)}
+                  </h3>
+                  <p className="text-white">
+                    {formatKoreanText(grammarItem.explanation)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleToggleSave(grammarItem.pattern)}
+                    className={`p-2 rounded-full transition-colors ${
+                      savedGrammars.has(grammarItem.pattern)
+                        ? 'bg-accent-600 text-white'
+                        : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    }`}
+                  >
+                    {savedGrammars.has(grammarItem.pattern) ? (
+                      <Check className="w-5 h-5" />
+                    ) : (
+                      <BookmarkPlus className="w-5 h-5" />
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleToggleHide(grammarItem.pattern)}
+                    className={`p-2 rounded-lg transition-colors ${
+                      hiddenGrammars.has(grammarItem.pattern)
+                        ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    }`}
+                  >
+                    {hiddenGrammars.has(grammarItem.pattern) ? (
+                      <EyeOff className="w-5 h-5 text-red-500" />
+                    ) : (
+                      <EyeOff className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
               <div className="p-4 bg-gray-800/50">
                 <p

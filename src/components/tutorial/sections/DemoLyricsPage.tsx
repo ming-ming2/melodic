@@ -92,68 +92,86 @@ const DemoLyricsPage = ({ onBack }: { onBack: () => void }) => {
     }, 500)
   }, [])
   return (
-    <div className="relative h-screen flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
-      {/* 상단 뒤로가기 버튼 */}
-      <button
-        onClick={onBack}
-        className="absolute top-4 left-4 z-50 text-white bg-gray-800/50 backdrop-blur-sm p-2 rounded-full hover:bg-gray-700 transition-colors"
-      >
-        ← 튜토리얼로 돌아가기
-      </button>
+    <div className="h-screen flex flex-col">
+      {/* 상단 헤더 */}
+      <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md border-b border-gray-800 rounded-b-xl">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <button
+              onClick={onBack}
+              className="text-white hover:text-accent-400 transition-colors"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <div className="flex-1 text-center">
+              <h1 className="text-lg font-medium text-white">
+                {TUTORIAL_SONG_DATA.title}
+              </h1>
+            </div>
+          </div>
+        </div>
+      </header>
 
-      {/* YouTube Player 영역 */}
-      <div className="w-full lg:w-1/2 lg:sticky lg:top-14">
-        <div className="aspect-video w-full">
-          {!isLoading && timedLyrics.length > 0 && (
-            <YouTubePlayer
-              videoId={TUTORIAL_SONG_DATA.youtube_id}
-              currentLyric={timedLyrics[currentIndex].timestamp}
-              onTimeUpdate={handleTimeUpdate}
-              isUserNavigation={isUserNavigation}
-            />
+      {/* 메인 콘텐츠 */}
+      <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto flex-1">
+        {/* YouTube Player 영역 */}
+        <div className="w-full lg:w-1/2 lg:sticky lg:top-14">
+          <div className="aspect-video w-full">
+            {!isLoading && timedLyrics.length > 0 && (
+              <YouTubePlayer
+                videoId={TUTORIAL_SONG_DATA.youtube_id}
+                currentLyric={timedLyrics[currentIndex].timestamp}
+                onTimeUpdate={handleTimeUpdate}
+                isUserNavigation={isUserNavigation}
+              />
+            )}
+          </div>
+        </div>
+
+        {/* 가사 카드 영역 */}
+        <div className="w-full lg:w-1/2 bg-gray-900 lg:h-[calc(100vh-56px)] lg:overflow-hidden">
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <>
+              <LyricsCard
+                lyrics={timedLyrics}
+                currentIndex={currentIndex}
+                onIndexChange={handleManualIndexChange}
+              />
+              {/* 하단 내비게이션 바 (데스크톱 전용) */}
+              <div className="hidden lg:flex justify-between items-center p-4 border-t border-gray-800 bg-gray-900">
+                <button
+                  onClick={() =>
+                    handleManualIndexChange(
+                      currentIndex > 0
+                        ? currentIndex - 1
+                        : timedLyrics.length - 1
+                    )
+                  }
+                  className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                >
+                  <ChevronLeft className="w-6 h-6 text-white" />
+                </button>
+                <div className="text-sm text-gray-400">
+                  {currentIndex + 1} / {timedLyrics.length}
+                </div>
+                <button
+                  onClick={() =>
+                    handleManualIndexChange(
+                      currentIndex < timedLyrics.length - 1
+                        ? currentIndex + 1
+                        : 0
+                    )
+                  }
+                  className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6 text-white" />
+                </button>
+              </div>
+            </>
           )}
         </div>
-      </div>
-
-      {/* 가사 카드 영역 */}
-      <div className="w-full lg:w-1/2 bg-gray-900 lg:h-[calc(100vh-56px)] lg:overflow-hidden">
-        {isLoading ? (
-          <LoadingSpinner />
-        ) : (
-          <>
-            <LyricsCard
-              lyrics={timedLyrics}
-              currentIndex={currentIndex}
-              onIndexChange={handleManualIndexChange}
-            />
-            {/* 하단 내비게이션 바 (데스크톱 전용) */}
-            <div className="hidden lg:flex justify-between items-center p-4 border-t border-gray-800 bg-gray-900">
-              <button
-                onClick={() =>
-                  handleManualIndexChange(
-                    currentIndex > 0 ? currentIndex - 1 : timedLyrics.length - 1
-                  )
-                }
-                className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-              >
-                <ChevronLeft className="w-6 h-6 text-white" />
-              </button>
-              <div className="text-sm text-gray-400">
-                {currentIndex + 1} / {timedLyrics.length}
-              </div>
-              <button
-                onClick={() =>
-                  handleManualIndexChange(
-                    currentIndex < timedLyrics.length - 1 ? currentIndex + 1 : 0
-                  )
-                }
-                className="p-2 rounded-full bg-gray-800 hover:bg-gray-700 transition-colors"
-              >
-                <ChevronRight className="w-6 h-6 text-white" />
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </div>
   )
