@@ -38,14 +38,14 @@ export default function ExpressionTab({ lyric }: ExpressionTabProps) {
 
   const toggleSetItem = (
     setState: React.Dispatch<React.SetStateAction<Set<string>>>,
-    expression: string
+    item: string
   ) => {
     setState((prev) => {
       const newSet = new Set(prev)
-      if (newSet.has(word)) {
-        newSet.delete(word)
+      if (newSet.has(item)) {
+        newSet.delete(item)
       } else {
-        newSet.add(word)
+        newSet.add(item)
       }
       return newSet
     })
