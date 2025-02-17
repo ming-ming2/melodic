@@ -16,7 +16,13 @@ interface TimedLyric extends LyricLine {
   similarity: number
 }
 
-const DemoLyricsPage = ({ onBack }: { onBack: () => void }) => {
+const DemoLyricsPage = ({
+  onBack,
+  onComplete,
+}: {
+  onBack: () => void
+  onComplete: () => void
+}) => {
   const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [timedLyrics, setTimedLyrics] = useState<TimedLyric[]>([])
@@ -91,6 +97,7 @@ const DemoLyricsPage = ({ onBack }: { onBack: () => void }) => {
       setIsUserNavigation(false)
     }, 500)
   }, [])
+
   return (
     <div className="h-screen flex flex-col">
       {/* 상단 헤더 */}
@@ -105,14 +112,14 @@ const DemoLyricsPage = ({ onBack }: { onBack: () => void }) => {
             </button>
             <div className="flex-1 text-center">
               <h1 className="text-lg font-medium text-white">
-                {TUTORIAL_SONG_DATA.title}
+                노래 학습 체험하기
               </h1>
             </div>
           </div>
         </div>
       </header>
 
-      {/* 메인 콘텐츠 */}
+      {/* 메인 컨텐츠 */}
       <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto flex-1">
         {/* YouTube Player 영역 */}
         <div className="w-full lg:w-1/2 lg:sticky lg:top-14">
@@ -123,6 +130,9 @@ const DemoLyricsPage = ({ onBack }: { onBack: () => void }) => {
                 currentLyric={timedLyrics[currentIndex].timestamp}
                 onTimeUpdate={handleTimeUpdate}
                 isUserNavigation={isUserNavigation}
+                onPlayerReady={() => {
+                  // 필요하다면 플레이어 준비 완료 시 동작 추가 가능
+                }}
               />
             )}
           </div>

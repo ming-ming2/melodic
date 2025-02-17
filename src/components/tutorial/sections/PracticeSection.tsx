@@ -16,7 +16,12 @@ const PracticeSection = () => {
     setSelectedFeature('overview')
   }
 
-  // 실시간 노래 학습 렌더링
+  // 튜토리얼 완료 핸들러 추가
+  const handleTutorialComplete = () => {
+    // TODO: 튜토리얼 완료 후 처리 로직 (예: 다음 화면으로 이동 등)
+    setSelectedFeature('overview')
+  }
+
   // 실시간 노래 학습 렌더링
   if (selectedFeature === 'song-learning') {
     return (
@@ -25,7 +30,10 @@ const PracticeSection = () => {
         animate={{ opacity: 1, y: 0 }}
         className="fixed inset-0 bg-gray-950 z-50 overflow-hidden"
       >
-        <DemoLyricsPage onBack={handleBackToOverview} />
+        <DemoLyricsPage
+          onBack={handleBackToOverview}
+          onComplete={handleTutorialComplete}
+        />
       </motion.div>
     )
   }

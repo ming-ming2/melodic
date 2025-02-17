@@ -24,9 +24,13 @@ interface SongGrammar {
   grammars: number
 }
 
+interface GrammarSectionProps {
+  onStartStudy: (collectionId: string, type: 'vocabulary' | 'grammar') => void
+}
+
 type ViewMode = 'language' | 'song'
 
-export default function GrammarSection() {
+export default function GrammarSection({ onStartStudy }: GrammarSectionProps) {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<ViewMode>('language')
   const [collections, setCollections] = useState<GrammarCollection[]>([

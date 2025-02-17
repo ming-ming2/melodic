@@ -24,10 +24,19 @@ interface SongVocabulary {
   words: number
 }
 
+interface VocabularySectionProps {
+  onStartStudy: (collectionId: string, type: 'vocabulary' | 'grammar') => void
+}
+
 type ViewMode = 'language' | 'song'
 
-export default function VocabularySection() {
+export default function VocabularySection({
+  onStartStudy,
+}: VocabularySectionProps) {
   const router = useRouter()
+  const handleStartStudy = (collectionId: string) => {
+    router.push(`/study/${collectionId}`)
+  }
   const [viewMode, setViewMode] = useState<ViewMode>('language')
   const [collections, setCollections] = useState<VocabularyCollection[]>([
     {
@@ -168,7 +177,10 @@ export default function VocabularySection() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs hover:bg-accent-700 flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleStartStudy(collection.id)}
+                        className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs hover:bg-accent-700 flex items-center gap-1.5"
+                      >
                         <Repeat className="w-4 h-4" />
                         학습하기
                       </button>
@@ -239,7 +251,10 @@ export default function VocabularySection() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs hover:bg-accent-700 flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleStartStudy(collection.id)}
+                        className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs hover:bg-accent-700 flex items-center gap-1.5"
+                      >
                         <Repeat className="w-4 h-4" />
                         학습하기
                       </button>
