@@ -4,7 +4,6 @@ import AppLayout from '@/components/common/AppLayout'
 import VocabularySection from '@/components/studyroom/VocabularySection'
 import GrammarSection from '@/components/studyroom/GrammarSection'
 import HiddenSection from '@/components/studyroom/HiddenSection'
-import StudySession from '@/components/studyroom/StudySession'
 
 type ActiveTab = 'vocabulary' | 'grammar' | 'hidden'
 
@@ -33,19 +32,6 @@ export default function StudyRoomPage() {
   // 학습 종료 핸들러
   const handleEndStudy = () => {
     setStudyMode(null)
-  }
-
-  // 학습 세션이 활성화되어 있으면 StudySession 컴포넌트 표시
-  if (studyMode?.isActive) {
-    return (
-      <AppLayout showBottomNav={false}>
-        <StudySession
-          collectionId={studyMode.collectionId}
-          onComplete={handleEndStudy}
-          onExit={handleEndStudy}
-        />
-      </AppLayout>
-    )
   }
 
   // 기본 공부방 UI

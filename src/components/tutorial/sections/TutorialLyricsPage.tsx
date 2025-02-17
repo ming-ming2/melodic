@@ -163,7 +163,15 @@ const TutorialGuide: React.FC<{
   return renderGuide()
 }
 
-const TutorialLyricsPage: React.FC<TutorialLyricsPageProps> = ({
+interface TutorialLyricsPagePropsExtended extends TutorialLyricsPageProps {}
+
+interface YouTubePlayerHandle {
+  pauseVideo: () => void
+  playVideo: () => void
+  seekTo: (seconds: number, allowSeekAhead?: boolean) => void
+}
+
+const TutorialLyricsPage: React.FC<TutorialLyricsPagePropsExtended> = ({
   onBack,
   onComplete,
 }) => {
@@ -174,7 +182,8 @@ const TutorialLyricsPage: React.FC<TutorialLyricsPageProps> = ({
   const [isUserNavigation, setIsUserNavigation] = useState(false)
   const [isPlayerReady, setIsPlayerReady] = useState(false)
 
-  const playerRef = useRef<any>(null)
+  // playerRef 타입 변경
+  const playerRef = useRef<YouTubePlayerHandle | null>(null)
   const navigationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastAutoUpdatedIndexRef = useRef<number>(-1)
 

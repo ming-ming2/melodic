@@ -30,9 +30,11 @@ interface VocabularySectionProps {
 
 type ViewMode = 'language' | 'song'
 
-export default function VocabularySection({
-  onStartStudy,
-}: VocabularySectionProps) {
+export default function VocabularySection(
+  {
+    // onStartStudy,
+  }: VocabularySectionProps
+) {
   const router = useRouter()
   const handleStartStudy = (collectionId: string) => {
     router.push(`/study/${collectionId}`)
@@ -251,10 +253,7 @@ export default function VocabularySection({
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleStartStudy(collection.id)}
-                        className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs hover:bg-accent-700 flex items-center gap-1.5"
-                      >
+                      <button className="px-3 py-1.5 bg-accent-600 text-white rounded-lg text-xs hover:bg-accent-700 flex items-center gap-1.5">
                         <Repeat className="w-4 h-4" />
                         학습하기
                       </button>

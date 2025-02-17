@@ -18,7 +18,7 @@ interface TimedLyric extends LyricLine {
 
 const DemoLyricsPage = ({
   onBack,
-  onComplete,
+  // onComplete,
 }: {
   onBack: () => void
   onComplete: () => void

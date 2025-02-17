@@ -30,7 +30,7 @@ interface GrammarSectionProps {
 
 type ViewMode = 'language' | 'song'
 
-export default function GrammarSection({ onStartStudy }: GrammarSectionProps) {
+export default function GrammarSection({} /*onStartStudy*/ : GrammarSectionProps) {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<ViewMode>('language')
   const [collections, setCollections] = useState<GrammarCollection[]>([

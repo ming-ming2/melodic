@@ -1,11 +1,5 @@
 // components/lyrics/YouTubePlayer/index.tsx
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useRef,
-  useState,
-  useEffect,
-} from 'react'
+import React, { useImperativeHandle, useRef, useState, useEffect } from 'react'
 import {
   Repeat,
   Play,
