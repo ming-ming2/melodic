@@ -1,218 +1,218 @@
 // stores/studySessionStore.ts
 import { create } from 'zustand'
-import { FSRS, FSRSData, Rating } from '@/utils/fsrs'
+import { persist } from 'zustand/middleware'
+import { FSRS } from '@/utils/fsrs'
+import {
+  FSRSCard,
+  StudySession,
+  Rating,
+  ReviewLog,
+  StudyConfig,
+  Platform,
+} from '@/types/study'
 
-interface Card {
-  id: string
-  collectionId: string
-  content: {
-    word?: string
-    grammar?: string
-    meaning: string
-    example: string
-    context: {
-      songId: string
-      songTitle: string
-      artist: string
-      lyricLine: string
-    }
-  }
-  fsrs: FSRSData
+const DEFAULT_CONFIG: StudyConfig = {
+  learningSteps: [1, 10],
+  relearningSteps: [5, 20],
+  weights: [
+    0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046, 1.54575,
+    0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898, 0.51655,
+    0.6621,
+  ],
+  requestRetention: 0.9,
+  maximumInterval: 36500,
+  enableFuzz: true,
 }
 
-interface Collection {
-  id: string
-  name: string
-  newPerDay: number
-  maxReviewsPerDay: number
-}
+interface StudySessionStore {
+  // 세션 상태
+  session: StudySession | null
+  currentCard: FSRSCard | null
+  reviewHistory: ReviewLog[]
+  studyStartTime: number | null
+  platform: Platform
 
-interface TodayCards {
-  newCards: Card[]
-  reviewCards: Card[]
-}
-
-interface StudySessionState {
-  // 현재 학습중인 컬렉션 정보
-  currentCollection: {
-    id: string
-    name: string
-    newPerDay: number // 하루 신규 학습 목표
-    maxReviewsPerDay: number // 하루 최대 복습량
-  } | null
-
-  // 학습 큐
-  currentCard: Card | null
-  newQueue: Card[] // 신규 카드
-  learningQueue: Card[] // 학습중/재학습 카드
-  graduatedQueue: Card[] // 복습 예정 카드
-
-  // 통계
-  todayStats: {
-    newCount: number // 오늘 학습한 신규 카드 수
-    reviewCount: number // 오늘 복습한 카드 수
-    correctCount: number // 정답 수
-  }
+  // FSRS 인스턴스
+  fsrs: FSRS
 
   // 액션
-  startSession: (collectionId: string) => Promise<void>
+  initialize: (platform: Platform) => void
+  startSession: (cards: FSRSCard[]) => void
+  answerCard: (rating: Rating) => void
   endSession: () => void
-  rateCard: (rating: Rating) => void
-  getNextCard: () => Card | null
+
+  // 통계
+  getSessionStats: () => {
+    totalTime: number
+    correctCount: number
+    averageTimePerCard: number
+    retentionRate: number
+  }
 }
 
-// stores/studySessionStore.ts (계속)
-
-const fsrs = new FSRS() // FSRS 인스턴스 생성
-
-const useStudySessionStore = create<StudySessionState>((set, get) => ({
-  // 초기 상태
-  currentCollection: null,
-  currentCard: null,
-  newQueue: [],
-  learningQueue: [],
-  graduatedQueue: [],
-  todayStats: {
-    newCount: 0,
-    reviewCount: 0,
-    correctCount: 0,
-  },
-
-  // 학습 세션 시작
-  startSession: async (collectionId: string) => {
-    try {
-      const collection: Collection = await fetch(
-        `/api/collections/${collectionId}`
-      ).then((res) => res.json())
-      const { newCards, reviewCards }: TodayCards = await fetch(
-        `/api/collections/${collectionId}/today-cards`
-      ).then((res) => res.json())
-
-      set({
-        currentCollection: collection,
-        newQueue: newCards,
-        graduatedQueue: reviewCards.filter(
-          (card) => new Date(card.fsrs.nextReview!) <= new Date()
-        ),
-        learningQueue: [],
-      })
-
-      // 3. 첫 카드 선택
-      get().getNextCard()
-    } catch (error) {
-      console.error('Failed to start study session:', error)
-      // TODO: 에러 처리
-    }
-  },
-
-  // 다음 카드 가져오기
-  getNextCard: () => {
-    const state = get()
-    let nextCard: Card | null = null
-
-    // 우선순위: learning > graduated > new
-    if (state.learningQueue.length > 0) {
-      // 학습중/재학습 카드 우선
-      ;[nextCard] = state.learningQueue
-      set({
-        learningQueue: state.learningQueue.slice(1),
-        currentCard: nextCard,
-      })
-    } else if (state.graduatedQueue.length > 0) {
-      // 복습 예정 카드
-      ;[nextCard] = state.graduatedQueue
-      set({
-        graduatedQueue: state.graduatedQueue.slice(1),
-        currentCard: nextCard,
-      })
-    } else if (
-      state.newQueue.length > 0 &&
-      state.todayStats.newCount < state.currentCollection!.newPerDay
-    ) {
-      // 신규 카드 (일일 한도 내에서)
-      ;[nextCard] = state.newQueue
-      set({
-        newQueue: state.newQueue.slice(1),
-        currentCard: nextCard,
-        todayStats: {
-          ...state.todayStats,
-          newCount: state.todayStats.newCount + 1,
-        },
-      })
-    }
-
-    return nextCard
-  },
-
-  // 카드 평가
-  rateCard: (rating: Rating) => {
-    const state = get()
-    const currentCard = state.currentCard
-
-    // null check
-    if (!currentCard) {
-      console.warn('No card is currently being reviewed')
-      return
-    }
-
-    const updatedFSRS = fsrs.review(currentCard.fsrs, rating)
-    const updatedCard: Card = {
-      ...currentCard,
-      fsrs: updatedFSRS,
-    }
-
-    // 큐 업데이트 부분도 null 체크 추가
-    if (rating === 1) {
-      // Again
-      set((state) => {
-        if (!state.currentCard) return state // null check
-        return {
-          learningQueue: [updatedCard, ...state.learningQueue],
-          currentCard: null,
-        }
-      })
-    } else {
-      // Good/Easy
-      set((state) => {
-        if (!state.currentCard) return state // null check
-        return {
-          currentCard: null,
-          todayStats: {
-            ...state.todayStats,
-            correctCount: state.todayStats.correctCount + 1,
-            reviewCount: state.todayStats.reviewCount + 1,
-          },
-        }
-      })
-    }
-
-    // API 호출
-    fetch(`/api/cards/${currentCard.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(updatedCard),
-    }).catch((error) => {
-      console.error('Failed to update card:', error)
-    })
-
-    // 다음 카드 가져오기
-    get().getNextCard()
-  },
-
-  // 세션 종료
-  endSession: () => {
-    set({
-      currentCollection: null,
+const useStudySessionStore = create<StudySessionStore>()(
+  persist(
+    (set, get) => ({
+      session: null,
       currentCard: null,
-      newQueue: [],
-      learningQueue: [],
-      graduatedQueue: [],
-      todayStats: {
-        newCount: 0,
-        reviewCount: 0,
-        correctCount: 0,
+      reviewHistory: [],
+      studyStartTime: null,
+      platform: 'web',
+      fsrs: new FSRS(DEFAULT_CONFIG),
+
+      initialize: (platform: Platform) => {
+        set({
+          session: null,
+          currentCard: null,
+          reviewHistory: [],
+          studyStartTime: null,
+          platform,
+          fsrs: new FSRS(DEFAULT_CONFIG, platform),
+        })
       },
-    })
-  },
-}))
+
+      startSession: (cards: FSRSCard[]) => {
+        if (!cards.length) return
+
+        const sessionId = crypto.randomUUID()
+        const now = new Date()
+
+        // 세션 초기화
+        const newSession: StudySession = {
+          id: sessionId,
+          startTime: now,
+          totalCards: cards.length,
+          newCount: cards.filter((card) => card.data.state === 'new').length,
+          reviewCount: cards.filter((card) => card.data.state !== 'new').length,
+          correctCount: 0,
+          currentCard: cards[0],
+          platform: get().platform,
+        }
+
+        set({
+          session: newSession,
+          currentCard: cards[0],
+          studyStartTime: Date.now(),
+          reviewHistory: [],
+        })
+      },
+
+      answerCard: (rating: Rating) => {
+        const { currentCard, session, fsrs, platform, reviewHistory } = get()
+        if (!currentCard || !session) return
+
+        const timeSpent = Date.now() - (get().studyStartTime || Date.now())
+
+        try {
+          // FSRS로 카드 상태 업데이트
+          const updatedData = fsrs.review(currentCard, rating, timeSpent)
+
+          // 리뷰 로그 생성
+          const reviewLog: ReviewLog = {
+            id: crypto.randomUUID(),
+            sessionId: session.id,
+            cardId: currentCard.id,
+            reviewType: currentCard.data.state,
+            rating,
+            interval: Math.floor(
+              (updatedData.nextReview!.getTime() -
+                updatedData.lastReview!.getTime()) /
+                (1000 * 60 * 60 * 24)
+            ),
+            lastInterval: currentCard.data.lastReview
+              ? Math.floor(
+                  (new Date().getTime() -
+                    currentCard.data.lastReview.getTime()) /
+                    (1000 * 60 * 60 * 24)
+                )
+              : 0,
+            easeFactor: updatedData.difficulty,
+            timeSpent,
+            timestamp: Date.now(),
+            stability: updatedData.stability,
+            difficulty: updatedData.difficulty,
+            deviceInfo: navigator.userAgent,
+            syncState: {
+              lastSynced: null,
+              pendingChanges: true,
+              platform,
+              version: 1,
+            },
+            platform,
+          }
+
+          // 상태 업데이트
+          set({
+            currentCard: {
+              ...currentCard,
+              data: updatedData,
+            },
+            session: {
+              ...session,
+              correctCount:
+                rating !== 1 ? session.correctCount + 1 : session.correctCount,
+            },
+            reviewHistory: [...reviewHistory, reviewLog],
+          })
+        } catch (error) {
+          console.error('Failed to process answer:', error)
+          // TODO: 에러 처리 및 복구 메커니즘
+        }
+      },
+
+      endSession: () => {
+        const { session } = get()
+        if (!session) return
+
+        const endTime = new Date()
+        set((state) => ({
+          session: {
+            ...state.session!,
+            endTime,
+          },
+          currentCard: null,
+          studyStartTime: null,
+        }))
+
+        // TODO: 세션 데이터 저장 및 동기화
+      },
+
+      getSessionStats: () => {
+        const { session, reviewHistory } = get()
+        if (!session || !reviewHistory.length) {
+          return {
+            totalTime: 0,
+            correctCount: 0,
+            averageTimePerCard: 0,
+            retentionRate: 0,
+          }
+        }
+
+        const totalTime = reviewHistory.reduce(
+          (sum, log) => sum + log.timeSpent,
+          0
+        )
+        const correctCount = session.correctCount
+        const averageTimePerCard = totalTime / reviewHistory.length
+        const retentionRate = (correctCount / reviewHistory.length) * 100
+
+        return {
+          totalTime,
+          correctCount,
+          averageTimePerCard,
+          retentionRate,
+        }
+      },
+    }),
+    {
+      name: 'study-session-storage',
+      // 민감한 데이터는 제외하고 저장
+      partialize: (state) => ({
+        platform: state.platform,
+        reviewHistory: state.reviewHistory,
+      }),
+    }
+  )
+)
 
 export default useStudySessionStore

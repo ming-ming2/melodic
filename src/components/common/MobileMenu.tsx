@@ -91,7 +91,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                       <span>공부방</span>
                     </Link>
                     <Link
-                      href="/default"
+                      href="/favorites"
                       className="flex items-center gap-3 p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
                       onClick={onClose}
                     >

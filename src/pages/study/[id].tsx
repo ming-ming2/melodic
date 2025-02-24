@@ -74,7 +74,7 @@ const DUMMY_VOCABULARY = [
 ]
 
 export default function StudyPage() {
-  //   const params = useParams()
+  // const params = useParams()
   const router = useRouter()
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
@@ -111,7 +111,7 @@ export default function StudyPage() {
   }
 
   // 난이도 버튼 클릭 시 카드 전환 애니메이션 처리
-  const handleRate = async (_rating: number) => {
+  const handleRate = async (rating: number) => {
     if (currentCardIndex < DUMMY_VOCABULARY.length - 1) {
       await controls.start({ rotateY: 90, transition: { duration: 0.2 } })
       setCurrentCardIndex((prev) => prev + 1)
@@ -173,9 +173,6 @@ export default function StudyPage() {
           >
             <div className="h-full flex flex-col items-center justify-center p-8 text-center">
               <h2 className="text-4xl font-bold mb-3">{currentCard.word}</h2>
-              <p className="text-xl text-gray-400">
-                {currentCard.pronunciation}
-              </p>
               <p className="text-sm text-gray-500 mt-8">터치하여 확인하기</p>
             </div>
           </div>

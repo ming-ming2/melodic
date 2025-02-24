@@ -4,7 +4,6 @@ export interface Song {
   title: string
   artist: string
   albumCover: string
-  difficulty: 'easy' | 'medium' | 'hard'
   genre?: string
   learnedDate?: string
   isFavorite?: boolean

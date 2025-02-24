@@ -1,55 +1,108 @@
 // types/study.ts
+export type CardState = 'new' | 'learning' | 'review' | 'relearning'
+export type Rating = 1 | 3 | 4 // again, good, easy
+export type Platform = 'web' | 'mobile'
 
-import { FSRSData } from '@/utils/fsrs'
+export interface SyncState {
+  lastSynced: Date | null
+  pendingChanges: boolean
+  platform: Platform
+  version: number
+}
 
-// 학습 가능한 컬렉션 타입
-export type CollectionType = 'vocabulary' | 'grammar'
+export interface RecoveryData {
+  originalState: FSRSData
+  timestamp: number
+  reason: string
+}
 
-// 기본 컬렉션 인터페이스
-export interface Collection {
+export interface FSRSData {
+  state: CardState
+  difficulty: number
+  stability: number
+  lastReview: Date | null
+  nextReview: Date | null
+  lapses: number
+  reps: number
+  seed?: number
+  syncState?: SyncState
+  recoveryData?: RecoveryData
+}
+export interface FSRSSchedulerConfig {
+  // 기본 설정
+  startHour: number
+  timezone: string
+
+  // 학습 제한
+  newCardsPerDay: number
+  reviewsPerDay: number
+  timeoutMinutes: number
+
+  // 고급 설정
+  enableFuzz: boolean
+  enableTimeouts: boolean
+  allowEarlyReviews: boolean
+
+  // FSRS 관련 설정
+  learningSteps: number[]
+  relearningSteps: number[]
+  weights: number[]
+  requestRetention: number
+  maximumInterval: number
+}
+
+export interface StudyConfig {
+  // 기존 설정들
+  learningSteps: number[]
+  relearningSteps: number[]
+  weights: number[]
+  requestRetention: number
+  maximumInterval: number
+  enableFuzz: boolean
+}
+
+export interface StudySession {
   id: string
-  name: string
-  type: CollectionType
-  settings: {
-    newPerDay: number // 하루 신규 학습 목표
-    maxReviewsPerDay: number // 하루 최대 복습량
-  }
-  language: {
-    id: string
-    name: string
-    flag: string
-  }
+  startTime: Date
+  endTime?: Date
+  totalCards: number
+  newCount: number
+  reviewCount: number
+  correctCount: number
+  currentCard: FSRSCard | null
+  platform: Platform
 }
 
-// 학습 카드 인터페이스
-export interface Card {
+export interface FSRSCard {
   id: string
-  collectionId: string
-  content: {
-    word?: string // 단어장용
-    grammar?: string // 문법노트용
-    meaning: string
-    example: string
-    context: {
-      songId: string
-      songTitle: string
-      artist: string
-      lyricLine: string
-    }
+  type: 'vocabulary' | 'grammar'
+  data: FSRSData
+  front: string
+  back: string
+  context?: {
+    songId: string
+    songTitle: string
+    lyricLine: string
   }
-  fsrs: FSRSData // FSRS 알고리즘 관련 데이터
+  lastModified: Date
+  createdAt: Date
+  syncState: SyncState
 }
 
-// 학습 통계
-export interface StudyStats {
-  todayLearned: number // 오늘 학습한 양
-  todayTarget: number // 오늘의 목표량
-  totalItems: number // 전체 아이템 수
-  correctCount: number // 정답 수
-}
-
-// 오늘의 학습 카드
-export interface TodayCards {
-  newCards: Card[] // 오늘 학습할 신규 카드
-  reviewCards: Card[] // 오늘 복습할 카드
+export interface ReviewLog {
+  id: string
+  sessionId: string
+  cardId: string
+  reviewType: CardState
+  rating: Rating
+  interval: number
+  lastInterval: number
+  easeFactor: number
+  timeSpent: number
+  timestamp: number
+  stability?: number
+  difficulty?: number
+  deviceInfo: string
+  syncState: SyncState
+  platform: Platform
 }

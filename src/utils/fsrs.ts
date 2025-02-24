@@ -1,111 +1,175 @@
 // utils/fsrs.ts
-
-export type CardState = 'new' | 'learning' | 'graduated' | 'relearning'
-export type Rating = 1 | 3 | 4 // again, good, easy
-
-interface FSRSConfig {
-  weights: number[]
-  requestRetention: number
-  maximumInterval: number
-}
-
-export interface FSRSData {
-  state: CardState
-  difficulty: number
-  stability: number
-  lastReview: Date | null
-  nextReview: Date | null
-}
+import {
+  FSRSData,
+  FSRSCard,
+  Rating,
+  StudyConfig,
+  Platform,
+} from '@/types/study'
+import seedrandom from 'seedrandom'
 
 export class FSRS {
   private readonly DECAY = -0.5
   private readonly FACTOR = 0.9 ** (1 / this.DECAY) - 1
 
-  private config: FSRSConfig = {
-    // 최적화된 가중치 값들
-    weights: [
-      0.40255, 1.18385, 3.173, 15.69105, 7.1949, 0.5345, 1.4604, 0.0046,
-      1.54575, 0.1192, 1.01925, 1.9395, 0.11, 0.29605, 2.2698, 0.2315, 2.9898,
-      0.51655, 0.6621,
-    ],
-    requestRetention: 0.9, // 90% 목표 기억 유지율
-    maximumInterval: 36500, // 최대 100년
-  }
+  constructor(
+    private config: StudyConfig,
+    private platform: Platform = 'web'
+  ) {}
 
-  constructor(config?: Partial<FSRSConfig>) {
-    this.config = { ...this.config, ...config }
-  }
+  public review(card: FSRSCard, rating: Rating, timeSpent: number): FSRSData {
+    try {
+      if (!card?.data) {
+        throw new Error('Invalid card data')
+      }
 
-  // 메인 리뷰 함수
-  public review(card: FSRSData, rating: Rating): FSRSData {
-    switch (card.state) {
-      case 'new':
-        return this.handleNewCard(card, rating)
-      case 'learning':
-      case 'relearning':
-        return this.handleLearningCard(card, rating)
-      case 'graduated':
-        return this.handleGraduatedCard(card, rating)
-      default:
-        throw new Error('Invalid card state')
+      let updatedData: FSRSData
+
+      switch (card.data.state) {
+        case 'new':
+          updatedData = this.handleNewCard(card.data, rating)
+          break
+        case 'learning':
+        case 'relearning':
+          updatedData = this.handleLearningCard(card.data, rating)
+          break
+        case 'review':
+          updatedData = this.handleReviewCard(card.data, rating)
+          break
+        default:
+          throw new Error('Invalid card state')
+      }
+
+      // 복구 데이터 저장
+      updatedData.recoveryData = {
+        originalState: { ...card.data },
+        timestamp: Date.now(),
+        reason: 'regular_review',
+      }
+
+      // 동기화 상태 업데이트
+      updatedData.syncState = {
+        lastSynced: null,
+        pendingChanges: true,
+        platform: this.platform,
+        version: (card.data.syncState?.version || 0) + 1,
+      }
+
+      return updatedData
+    } catch (error) {
+      console.error('Review failed:', error)
+      throw error
     }
   }
 
-  private handleNewCard(card: FSRSData, rating: Rating): FSRSData {
+  private handleNewCard(data: FSRSData, rating: Rating): FSRSData {
     const now = new Date()
     const difficulty = this.initDifficulty(rating)
     const stability = this.initStability(rating)
 
     return {
-      state: rating === 1 ? 'learning' : 'graduated',
+      ...data,
+      state: rating === 1 ? 'learning' : 'review',
       difficulty,
       stability,
       lastReview: now,
       nextReview: this.calculateNextReview(stability, rating),
+      reps: data.reps + 1,
     }
   }
 
-  private handleLearningCard(card: FSRSData, rating: Rating): FSRSData {
+  private handleLearningCard(data: FSRSData, rating: Rating): FSRSData {
     const now = new Date()
-    const difficulty = this.nextDifficulty(card.difficulty, rating)
-    const stability = this.nextShortTermStability(card.stability, rating)
+    const difficulty = this.nextDifficulty(data.difficulty, rating)
+    const stability = this.nextShortTermStability(data.stability, rating)
 
     return {
-      state: rating === 1 ? card.state : 'graduated',
+      ...data,
+      state: rating === 1 ? data.state : 'review',
       difficulty,
       stability,
       lastReview: now,
       nextReview: this.calculateNextReview(stability, rating),
+      reps: data.reps + 1,
     }
   }
 
-  private handleGraduatedCard(card: FSRSData, rating: Rating): FSRSData {
+  private handleReviewCard(data: FSRSData, rating: Rating): FSRSData {
     const now = new Date()
-    const elapsedDays = this.getElapsedDays(card.lastReview!)
-    const retrievability = this.forgettingCurve(elapsedDays, card.stability)
+    const interval = this.getElapsedDays(data.lastReview!)
+    const retrievability = this.forgettingCurve(interval, data.stability)
+    const difficulty = this.nextDifficulty(data.difficulty, rating)
 
-    const difficulty = this.nextDifficulty(card.difficulty, rating)
-    const stability =
-      rating === 1
-        ? this.nextForgetStability(
-            card.difficulty,
-            card.stability,
-            retrievability
-          )
-        : this.nextRecallStability(
-            card.difficulty,
-            card.stability,
-            retrievability,
-            rating
-          )
+    let stability: number
+    if (rating === 1) {
+      stability = this.nextForgetStability(
+        difficulty,
+        data.stability,
+        retrievability
+      )
+    } else {
+      stability = this.nextRecallStability(
+        difficulty,
+        data.stability,
+        retrievability,
+        rating
+      )
+    }
 
     return {
-      state: rating === 1 ? 'relearning' : 'graduated',
+      ...data,
+      state: rating === 1 ? 'relearning' : 'review',
       difficulty,
       stability,
       lastReview: now,
       nextReview: this.calculateNextReview(stability, rating),
+      lapses: rating === 1 ? data.lapses + 1 : data.lapses,
+      reps: data.reps + 1,
     }
+  }
+
+  private calculateNextReview(stability: number, rating: Rating): Date {
+    const now = new Date()
+    now.setHours(0, 0, 0, 0) // 날짜 정규화
+
+    if (rating === 1) {
+      // Again인 경우 10분 후
+      return new Date(now.getTime() + 10 * 60 * 1000)
+    } else {
+      const interval = this.nextInterval(stability)
+      return new Date(now.getTime() + interval * 24 * 60 * 60 * 1000)
+    }
+  }
+
+  private nextInterval(stability: number): number {
+    const interval =
+      (stability / this.FACTOR) *
+      (Math.pow(this.config.requestRetention, 1 / this.DECAY) - 1)
+
+    const fuzzedInterval = this.applyFuzz(interval)
+    return Math.min(
+      Math.max(Math.round(fuzzedInterval), 1),
+      this.config.maximumInterval
+    )
+  }
+
+  private applyFuzz(interval: number): number {
+    if (!this.config.enableFuzz || interval < 2.5) return interval
+
+    interval = Math.round(interval)
+    const minInterval = Math.max(2, Math.round(interval * 0.95 - 1))
+    const maxInterval = Math.round(interval * 1.05 + 1)
+    const fuzzFactor = this.generateFuzzFactor()
+
+    return Math.floor(
+      fuzzFactor * (maxInterval - minInterval + 1) + minInterval
+    )
+  }
+
+  private generateFuzzFactor(): number {
+    const seed = Date.now().toString()
+    const rng = seedrandom(seed)
+    return rng()
   }
 
   private forgettingCurve(elapsedDays: number, stability: number): number {
@@ -177,36 +241,6 @@ export class FSRS {
     )
   }
 
-  private nextInterval(stability: number): number {
-    const interval =
-      (stability / this.FACTOR) *
-      (Math.pow(this.config.requestRetention, 1 / this.DECAY) - 1)
-
-    const fuzzedInterval = this.applyFuzz(interval)
-    return Math.min(
-      Math.max(Math.round(fuzzedInterval), 1),
-      this.config.maximumInterval
-    )
-  }
-
-  private calculateNextReview(stability: number, rating: Rating): Date {
-    const now = new Date()
-
-    if (rating === 1) {
-      // Again인 경우 10분 후
-      return new Date(now.getTime() + 10 * 60 * 1000)
-    } else {
-      // Good/Easy인 경우 계산된 간격
-      const interval = this.nextInterval(stability)
-      return new Date(now.getTime() + interval * 24 * 60 * 60 * 1000)
-    }
-  }
-
-  // 유틸리티 함수들
-  private constrainDifficulty(difficulty: number): number {
-    return Math.min(Math.max(Number(difficulty.toFixed(2)), 1), 10)
-  }
-
   private linearDamping(deltaD: number, oldD: number): number {
     return (deltaD * (10 - oldD)) / 9
   }
@@ -216,19 +250,15 @@ export class FSRS {
     return w[7] * init + (1 - w[7]) * current
   }
 
-  private getElapsedDays(lastReview: Date): number {
-    return (new Date().getTime() - lastReview.getTime()) / (1000 * 60 * 60 * 24)
+  private constrainDifficulty(difficulty: number): number {
+    return Math.min(Math.max(Number(difficulty.toFixed(2)), 1), 10)
   }
 
-  private applyFuzz(interval: number): number {
-    if (interval < 2.5) return interval
-
-    const fuzzyInterval = Math.round(interval)
-    const minInterval = Math.max(2, Math.round(fuzzyInterval * 0.95 - 1))
-    const maxInterval = Math.round(fuzzyInterval * 1.05 + 1)
-
-    return Math.floor(
-      Math.random() * (maxInterval - minInterval + 1) + minInterval
-    )
+  private getElapsedDays(lastReview: Date): number {
+    const now = new Date()
+    now.setHours(0, 0, 0, 0)
+    const last = new Date(lastReview)
+    last.setHours(0, 0, 0, 0)
+    return (now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24)
   }
 }

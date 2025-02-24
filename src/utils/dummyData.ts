@@ -23,7 +23,6 @@ export const DUMMY_POPULAR_SONGS: Song[] = [
     title: 'Blinding Lights',
     artist: 'The Weeknd',
     albumCover: albumCovers[0],
-    difficulty: 'medium',
     genre: 'Pop',
   },
   {
@@ -31,7 +30,6 @@ export const DUMMY_POPULAR_SONGS: Song[] = [
     title: 'Shape of You',
     artist: 'Ed Sheeran',
     albumCover: albumCovers[1],
-    difficulty: 'easy',
     genre: 'Pop',
   },
   {
@@ -39,7 +37,6 @@ export const DUMMY_POPULAR_SONGS: Song[] = [
     title: 'Hello',
     artist: 'Adele',
     albumCover: albumCovers[2],
-    difficulty: 'hard',
     genre: 'Ballad',
   },
   {
@@ -47,7 +44,6 @@ export const DUMMY_POPULAR_SONGS: Song[] = [
     title: 'Someone Like You',
     artist: 'Adele',
     albumCover: albumCovers[3],
-    difficulty: 'medium',
     genre: 'Ballad',
   },
   {
@@ -55,7 +51,6 @@ export const DUMMY_POPULAR_SONGS: Song[] = [
     title: 'Perfect',
     artist: 'Ed Sheeran',
     albumCover: albumCovers[4],
-    difficulty: 'easy',
     genre: 'Pop',
   },
 ]
@@ -66,7 +61,6 @@ export const DUMMY_RECENT_LEARNINGS: Song[] = [
     title: 'Someone Like You',
     artist: 'Adele',
     albumCover: albumCovers[3],
-    difficulty: 'medium',
     learnedDate: '2024-02-07',
     isFavorite: false,
   },
@@ -75,12 +69,50 @@ export const DUMMY_RECENT_LEARNINGS: Song[] = [
     title: 'Perfect',
     artist: 'Ed Sheeran',
     albumCover: albumCovers[4],
-    difficulty: 'easy',
     learnedDate: '2024-02-06',
     isFavorite: true,
   },
 ]
 
+// utils/dummyData.ts에 추가
+export const DUMMY_FAVORITE_SONGS: Song[] = [
+  {
+    id: 6,
+    title: 'Someone Like You',
+    artist: 'Adele',
+    albumCover: albumCovers[3],
+    learnedDate: '2024-02-07',
+    isFavorite: true,
+    genre: 'Ballad',
+  },
+  {
+    id: 7,
+    title: 'Perfect',
+    artist: 'Ed Sheeran',
+    albumCover: albumCovers[4],
+    learnedDate: '2024-02-06',
+    isFavorite: true,
+    genre: 'Pop',
+  },
+  {
+    id: 8,
+    title: 'Skyfall',
+    artist: 'Adele',
+    albumCover: albumCovers[2],
+    learnedDate: '2024-02-05',
+    isFavorite: true,
+    genre: 'Soundtrack',
+  },
+  {
+    id: 9,
+    title: 'Rolling in the Deep',
+    artist: 'Adele',
+    albumCover: albumCovers[1],
+    learnedDate: '2024-02-04',
+    isFavorite: true,
+    genre: 'Pop/Rock',
+  },
+]
 // 랜덤하게 앨범 커버 선택하는 유틸리티 함수
 export const getRandomAlbumCover = () => {
   return albumCovers[Math.floor(Math.random() * albumCovers.length)]
