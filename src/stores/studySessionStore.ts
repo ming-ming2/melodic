@@ -105,7 +105,7 @@ const useStudySessionStore = create<StudySessionStore>()(
 
         try {
           // FSRS로 카드 상태 업데이트
-          const updatedData = fsrs.review(currentCard, rating, timeSpent)
+          const updatedData = fsrs.review(currentCard, rating)
 
           // 리뷰 로그 생성
           const reviewLog: ReviewLog = {
