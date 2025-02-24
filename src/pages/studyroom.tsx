@@ -7,11 +7,11 @@ import HiddenSection from '@/components/studyroom/HiddenSection'
 
 type ActiveTab = 'vocabulary' | 'grammar' | 'hidden'
 
-interface StudyMode {
-  isActive: boolean
-  collectionId: string
-  type: 'vocabulary' | 'grammar'
-}
+// interface StudyMode {
+//   isActive: boolean
+//   collectionId: string
+//   type: 'vocabulary' | 'grammar'
+// }
 
 export default function StudyRoomPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('vocabulary')
