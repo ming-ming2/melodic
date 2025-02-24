@@ -15,13 +15,13 @@ interface StudyMode {
 
 export default function StudyRoomPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('vocabulary')
-  const [setStudyMode] = useState<StudyMode | null>(null)
+  // const [setStudyMode] = useState<StudyMode | null>(null)
 
   // 학습 시작 핸들러
-  const handleStartStudy = (
-    collectionId: string,
-    type: 'vocabulary' | 'grammar'
-  ) => {}
+  const handleStartStudy = () =>
+    // collectionId: string,
+    // type: 'vocabulary' | 'grammar'
+    {}
 
   // 기본 공부방 UI
   return (

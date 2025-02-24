@@ -110,8 +110,8 @@ export default function StudyPage() {
   }
 
   // 난이도 버튼 클릭 시 카드 전환 애니메이션 처리
-  // _rating 매개변수는 현재 평가값이지만, 아직 사용되지 않아 _rating으로 처리합니다.
-  const handleRate = async (_rating: number) => {
+  // handleRate 함수에서 전달된 평가값은 사용하지 않으므로 매개변수를 제거합니다.
+  const handleRate = async () => {
     if (currentCardIndex < DUMMY_VOCABULARY.length - 1) {
       await controls.start({ rotateY: 90, transition: { duration: 0.2 } })
       setCurrentCardIndex((prev) => prev + 1)
@@ -242,7 +242,7 @@ export default function StudyPage() {
             <div className="max-w-md mx-auto flex gap-3">
               <button
                 className="flex-1 py-4 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-xl text-sm font-medium"
-                onClick={() => handleRate(1)}
+                onClick={() => handleRate()}
               >
                 뇌정지
                 <span className="block text-xs opacity-80 mt-1">
@@ -251,7 +251,7 @@ export default function StudyPage() {
               </button>
               <button
                 className="flex-1 py-4 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-xl text-sm font-medium"
-                onClick={() => handleRate(3)}
+                onClick={() => handleRate()}
               >
                 긴가민가
                 <span className="block text-xs opacity-80 mt-1">
@@ -260,7 +260,7 @@ export default function StudyPage() {
               </button>
               <button
                 className="flex-1 py-4 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-xl text-sm font-medium"
-                onClick={() => handleRate(4)}
+                onClick={() => handleRate()}
               >
                 쉬워요
                 <span className="block text-xs opacity-80 mt-1">
