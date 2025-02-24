@@ -46,9 +46,6 @@ const RandomRecommendation: React.FC = () => {
             <p className="text-lg text-gray-300">
               {randomRecommendation.artist}
             </p>
-            <div className="mt-2 inline-block bg-accent-600 text-white px-3 py-1 rounded-full text-xs">
-              난이도: {randomRecommendation.difficulty}
-            </div>
           </div>
 
           {/* 학습 시작 버튼 */}
