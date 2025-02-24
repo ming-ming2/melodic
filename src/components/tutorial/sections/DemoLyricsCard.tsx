@@ -43,7 +43,9 @@ export default function DemoLyricsCard({
       newIndex = currentIndex === 0 ? lyrics.length - 1 : currentIndex - 1
     }
     onIndexChange(newIndex)
-    onControlAction && onControlAction('navigate')
+    if (onControlAction) {
+      onControlAction('navigate')
+    }
   }
 
   function renderTabContent() {
@@ -96,7 +98,9 @@ export default function DemoLyricsCard({
             onClick={() => {
               setActiveTab(tab.id)
               // 실제 탭 클릭 시 onControlAction 호출 (학습탭 완료는 DemoLyricsPage에서 탭 클릭 기록으로 처리)
-              onControlAction && onControlAction('tab')
+              if (onControlAction) {
+                onControlAction('tab')
+              }
             }}
             className={`py-3 flex flex-col items-center justify-center ${
               activeTab === tab.id

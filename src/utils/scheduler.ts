@@ -1,5 +1,5 @@
 // utils/scheduler.ts
-import { FSRSCard, CardState, Rating, StudyConfig } from '@/types/study'
+import { FSRSCard, CardState, StudyConfig } from '@/types/study'
 import { FSRS } from '@/utils/fsrs'
 import { getDueCards } from '@/utils/studyUtils'
 

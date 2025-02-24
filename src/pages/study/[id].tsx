@@ -1,5 +1,5 @@
 // pages/study/[id].tsx
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { ChevronLeft, Music } from 'lucide-react'
@@ -74,7 +74,6 @@ const DUMMY_VOCABULARY = [
 ]
 
 export default function StudyPage() {
-  // const params = useParams()
   const router = useRouter()
   const [currentCardIndex, setCurrentCardIndex] = useState(0)
   const [showAnswer, setShowAnswer] = useState(false)
@@ -111,7 +110,8 @@ export default function StudyPage() {
   }
 
   // 난이도 버튼 클릭 시 카드 전환 애니메이션 처리
-  const handleRate = async (rating: number) => {
+  // _rating 매개변수는 현재 평가값이지만, 아직 사용되지 않아 _rating으로 처리합니다.
+  const handleRate = async (_rating: number) => {
     if (currentCardIndex < DUMMY_VOCABULARY.length - 1) {
       await controls.start({ rotateY: 90, transition: { duration: 0.2 } })
       setCurrentCardIndex((prev) => prev + 1)

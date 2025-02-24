@@ -13,8 +13,8 @@ export class SM2 {
    */
   public static convertToFSRS(
     scheduledDays: number,
-    easeFactor: number,
-    reps: number
+    easeFactor: number
+    // reps: number
   ): Pick<FSRSData, 'difficulty' | 'stability'> {
     // 안정성은 현재 복습 간격을 그대로 사용 (최소 0.1)
     const stability = Math.max(scheduledDays, 0.1)

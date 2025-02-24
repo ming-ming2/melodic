@@ -17,7 +17,10 @@ export class FSRS {
     private platform: Platform = 'web'
   ) {}
 
-  public review(card: FSRSCard, rating: Rating, timeSpent: number): FSRSData {
+  public review(
+    card: FSRSCard,
+    rating: Rating /*timeSpent: number*/
+  ): FSRSData {
     try {
       if (!card?.data) {
         throw new Error('Invalid card data')

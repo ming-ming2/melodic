@@ -1,5 +1,5 @@
 // pages/DemoLyricsPage.tsx
-import React, { useState, useEffect, useRef, MouseEvent } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Head from 'next/head'
 import { ChevronLeft } from 'lucide-react'
 import DemoYouTubePlayer, { DemoYouTubePlayerRef } from './DemoYouTubePlayer'
@@ -20,10 +20,7 @@ interface DemoLyricsPageProps {
   onComplete: () => void
 }
 
-export default function DemoLyricsPage({
-  onBack,
-  onComplete,
-}: DemoLyricsPageProps) {
+export default function DemoLyricsPage({ onBack }: DemoLyricsPageProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [timedLyrics, setTimedLyrics] = useState<TimedLyric[]>([])
@@ -62,14 +59,14 @@ export default function DemoLyricsPage({
       target: 'video',
     },
     {
-      instruction: 'Step 3: 스킵 백 버튼 누르면 구간 처음부터 재생돼!',
-      feedback: '스킵 백 완료!',
+      instruction: 'Step 3: 되감기 버튼 누르면 구간 처음부터 재생돼!',
+      feedback: '되감기 완료!',
       expectedAction: 'skip',
       target: 'video',
     },
     {
-      instruction: 'Step 4: 반복 버튼 눌러서 루프 모드 확인해봐!',
-      feedback: '루프 모드 활성화!',
+      instruction: 'Step 4: 반복 버튼 눌러서 반복 모드 확인해봐!',
+      feedback: '반복 모드 활성화!',
       expectedAction: 'repeat',
       target: 'video',
     },

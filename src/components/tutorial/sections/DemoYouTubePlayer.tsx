@@ -78,8 +78,6 @@ const LoadingSpinner = () => (
   </div>
 )
 
-const isMobile = () => /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-
 export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
   function DemoYouTubePlayer(
     {
@@ -106,7 +104,7 @@ export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
     const [isPlaying, setIsPlaying] = useState(false)
     const [overlayVisible, setOverlayVisible] = useState(false)
     const [isRepeatOn, setIsRepeatOn] = useState(false)
-    const [currentTime, setCurrentTime] = useState(0)
+    // 삭제: const [setCurrentTime] = useState(0)
 
     useImperativeHandle(ref, () => ({
       pauseVideo: () => {
@@ -136,7 +134,6 @@ export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
       timeCheckInterval.current = setInterval(() => {
         if (!playerRef.current) return
         const time = playerRef.current.getCurrentTime()
-        setCurrentTime(time)
         onTimeUpdate?.(time)
         if (
           isRepeatOnRef.current &&
@@ -195,7 +192,9 @@ export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
               setIsLoading(false)
               if (playerRef.current) {
                 playerRef.current.seekTo(currentLyric.start)
-                onPlayerReady?.()
+                if (onPlayerReady) {
+                  onPlayerReady()
+                }
                 playerRef.current.pauseVideo()
                 setOverlayVisible(true)
               }
@@ -237,7 +236,9 @@ export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
       try {
         playerRef.current?.seekTo(currentLyric.start)
         playerRef.current?.playVideo()
-        onControlAction && onControlAction('play')
+        if (onControlAction) {
+          onControlAction('play')
+        }
       } catch (error) {
         console.error('Video start error:', error)
       }
@@ -246,7 +247,9 @@ export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
     const handleRestart = () => {
       if (!playerRef.current) return
       playerRef.current.seekTo(currentLyricRef.current.start)
-      onControlAction && onControlAction('skip')
+      if (onControlAction) {
+        onControlAction('skip')
+      }
       if (!isPlayingRef.current) playerRef.current.playVideo()
     }
 
@@ -254,18 +257,24 @@ export default React.forwardRef<DemoYouTubePlayerRef, DemoYouTubePlayerProps>(
       if (!playerRef.current) return
       if (isPlayingRef.current) {
         playerRef.current.pauseVideo()
-        onControlAction && onControlAction('pause')
+        if (onControlAction) {
+          onControlAction('pause')
+        }
       } else {
         playerRef.current.playVideo()
         setOverlayVisible(false)
-        onControlAction && onControlAction('play')
+        if (onControlAction) {
+          onControlAction('play')
+        }
       }
     }
 
     const toggleRepeat = () => {
       setIsRepeatOn((prev) => !prev)
       if (highlightControl === 'repeat') {
-        onControlAction && onControlAction('repeat')
+        if (onControlAction) {
+          onControlAction('repeat')
+        }
       }
     }
 

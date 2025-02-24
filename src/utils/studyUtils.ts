@@ -102,7 +102,7 @@ export const calculateStudyStreak = (reviewLogs: ReviewLog[]): number => {
   today.setHours(0, 0, 0, 0)
 
   let streak = 0
-  let currentDate = today
+  const currentDate = today
 
   while (true) {
     const dateStr = currentDate.toISOString().split('T')[0]
