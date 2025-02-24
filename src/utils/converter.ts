@@ -25,8 +25,8 @@ export class CardConverter {
     // 난이도와 안정성 계산
     const { difficulty, stability } = SM2.convertToFSRS(
       sm2Data.interval,
-      sm2Data.easeFactor,
-      sm2Data.repetitions
+      sm2Data.easeFactor
+      // sm2Data.repetitions
     )
 
     // 다음 복습 일자 계산
