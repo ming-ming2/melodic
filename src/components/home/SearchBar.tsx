@@ -164,7 +164,6 @@ export default function SearchBar({
       // 가사 정보 가져오기 시도
       try {
         // 1단계: YouTube 자막 정보 가져오기 시도
-        console.log('YouTube 자막 정보 가져오기 시도...')
         const captions = await getVideoCaption(videoMatch.id)
         if (captions && captions.length > 0) {
           lyricsSource = 'youtube'
@@ -172,13 +171,10 @@ export default function SearchBar({
         } else {
           throw new Error('YouTube 자막 없음')
         }
-      } catch (_) {
+      } catch {
         // 2단계: LRClib에서 가사 정보 가져오기 시도
         console.log('LRClib 가사 검색 시도 중...')
-        originalLyrics = await fetchLyricsFromLrclib(
-          result.artist,
-          result.title
-        )
+        originalLyrics = await fetchLyricsFromLrclib(result.artist, result.title)
 
         if (originalLyrics) {
           lyricsSource = 'lrclib'
