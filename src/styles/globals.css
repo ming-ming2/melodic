@@ -5,6 +5,8 @@
 /* 기본 스타일 */
 body {
   @apply bg-gray-950 text-white min-h-screen;
+  margin: 0;
+  padding: 0;
 }
 
 /* 커스텀 유틸리티 클래스 */

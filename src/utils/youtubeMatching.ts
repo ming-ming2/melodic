@@ -1,5 +1,6 @@
 import { SpotifySearchResult } from '@/types/spotify'
 import { YouTubeSearchResult } from '@/types/youtube'
+import { isOfficialMusicVideo } from '@/utils/youtubeSearch'
 
 // YouTube API 응답 인터페이스 정의
 interface YouTubeSearchResponse {
@@ -11,6 +12,7 @@ interface YouTubeSearchResponse {
       title: string
       channelTitle: string
       channelId: string
+      description?: string
       thumbnails: {
         default: {
           url: string
@@ -43,8 +45,8 @@ interface ScoredVideo {
 function normalizeString(str: string): string {
   return str
     .toLowerCase()
-    .replace(/\([^)]*\)/gu, '') // 괄호와 그 안의 내용 제거
-    .replace(/\[[^\]]*\]/gu, '') // 대괄호와 그 안의 내용 제거
+    .replace(/\([^)]*\)/gu, '') // 괄호와 그 안 내용 제거
+    .replace(/\[[^\]]*\]/gu, '') // 대괄호와 그 안 내용 제거
     .replace(/feat\.|ft\./gu, '')
     .replace(/[^\p{L}\p{N}\s]/gu, '')
     .replace(/\s+/gu, ' ')
@@ -53,11 +55,10 @@ function normalizeString(str: string): string {
 
 /**
  * 원본 제목(raw title)을 사용하여 비공식 영상 판별 함수
- * 단, 'official'이라는 단어가 포함되어 있다면 예외로 처리
+ * 'official' 키워드가 있으면 예외 처리
  */
 function isUnofficialVideo(rawTitle: string): boolean {
   const lowerTitle = rawTitle.toLowerCase()
-  // 공식 영상이라면 'official' 키워드가 들어있을 가능성이 높음
   if (lowerTitle.includes('official')) return false
 
   const unofficialPatterns = [
@@ -176,7 +177,7 @@ export async function findBestMatchingVideo(
       }
 
       let data: YouTubeSearchResponse = await response.json()
-      if (!data.items?.length && officialChannelId) {
+      if ((!data.items || data.items.length === 0) && officialChannelId) {
         debugLogs.push(
           `뮤직비디오 쿼리 "${query}" - 공식 채널 필터 결과 없음, 채널 필터 없이 재시도`
         )
@@ -191,25 +192,26 @@ export async function findBestMatchingVideo(
           data = await response.json()
         }
       }
-      if (!data.items?.length) {
+      if (!data.items || data.items.length === 0) {
         debugLogs.push(`뮤직비디오 쿼리 "${query}" 결과 0건.`)
         continue
       }
 
       const scoredResults: ScoredVideo[] = data.items.map((item) => {
-        // 원본 제목을 사용해 비공식 판별
         if (isUnofficialVideo(item.snippet.title)) {
           return { video: createVideoResult(item), score: -1 }
         }
 
         const videoTitle = item.snippet.title
         const channelTitle = item.snippet.channelTitle
+        const description = item.snippet.description || ''
+
         const normalizedVideoTitle = normalizeString(videoTitle)
         const normalizedChannelTitle = normalizeString(channelTitle)
         const normalizedTrackArtist = normalizeString(track.artist)
 
         let officialScore = 0
-        if (item.snippet.channelId === officialChannelId) {
+        if (officialChannelId && item.snippet.channelId === officialChannelId) {
           officialScore += 1.0
         }
 
@@ -226,6 +228,11 @@ export async function findBestMatchingVideo(
           )
         ) {
           officialScore += 0.5
+        }
+
+        // 추가: 영상 자체에 공식 키워드가 포함되면 보너스
+        if (isOfficialMusicVideo(videoTitle, channelTitle, description)) {
+          officialScore += 0.3
         }
 
         if (normalizedChannelTitle.includes(normalizedTrackArtist)) {
@@ -310,7 +317,7 @@ export async function findBestMatchingVideo(
       }
 
       let data: YouTubeSearchResponse = await response.json()
-      if (!data.items?.length && officialChannelId) {
+      if ((!data.items || data.items.length === 0) && officialChannelId) {
         debugLogs.push(
           `오디오 쿼리 "${query}" - 공식 채널 필터 결과 없음, 채널 필터 없이 재시도`
         )
@@ -325,7 +332,7 @@ export async function findBestMatchingVideo(
           data = await response.json()
         }
       }
-      if (!data.items?.length) {
+      if (!data.items || data.items.length === 0) {
         debugLogs.push(`오디오 쿼리 "${query}" 결과 0건.`)
         continue
       }
@@ -337,12 +344,14 @@ export async function findBestMatchingVideo(
 
         const videoTitle = item.snippet.title
         const channelTitle = item.snippet.channelTitle
+        const description = item.snippet.description || ''
+
         const normalizedVideoTitle = normalizeString(videoTitle)
         const normalizedChannelTitle = normalizeString(channelTitle)
         const normalizedTrackArtist = normalizeString(track.artist)
 
         let officialScore = 0
-        if (item.snippet.channelId === officialChannelId) {
+        if (officialChannelId && item.snippet.channelId === officialChannelId) {
           officialScore += 1.0
         }
 
@@ -353,6 +362,10 @@ export async function findBestMatchingVideo(
           )
         ) {
           officialScore += 0.5
+        }
+
+        if (isOfficialMusicVideo(videoTitle, channelTitle, description)) {
+          officialScore += 0.3
         }
 
         if (normalizedChannelTitle.includes(normalizedTrackArtist)) {

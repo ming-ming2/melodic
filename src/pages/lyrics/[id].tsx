@@ -6,7 +6,7 @@ import LyricsCard from '@/components/lyrics/LyricsCard'
 import { TUTORIAL_SONG_DATA } from '@/utils/tutorialDummyData'
 import { getVideoCaption, matchLyricsWithCaptions } from '@/utils/youtubeUtils'
 import { LyricLine } from '@/types/lyrics'
-import LoadingSpinner from '@/components/common/LoadingSpinner'
+import MusicLoading from '@/components/common/MusicLoading'
 import { ChevronLeft } from 'lucide-react'
 
 interface TimedLyric extends LyricLine {
@@ -66,82 +66,91 @@ export default function LyricsPage() {
         <meta name="theme-color" content="#111827" />
       </Head>
 
-      <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md border-b border-gray-800 rounded-b-xl">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            <button
-              onClick={() => router.back()}
-              className="text-white hover:text-accent-400 transition-colors"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <div className="flex-1 text-center">
-              <h1 className="text-lg font-medium text-white">
-                {TUTORIAL_SONG_DATA.title}
-              </h1>
+      {/* 최상위 flex 컨테이너로 화면 전체를 채우도록 구성 */}
+      <div className="flex flex-col min-h-screen">
+        <header className="sticky top-0 z-50 bg-gray-900 bg-opacity-80 backdrop-blur-md border-b border-gray-800 rounded-b-xl">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <button
+                onClick={() => router.back()}
+                className="text-white hover:text-accent-400 transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <div className="flex-1 text-center">
+                <h1 className="text-lg font-medium text-white">
+                  {TUTORIAL_SONG_DATA.title}
+                </h1>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
-        <div className="w-full lg:w-1/2">
-          <div className="w-full lg:sticky lg:top-14">
-            <div className="aspect-video w-full">
-              {!isLoading && timedLyrics.length > 0 && (
-                <YouTubePlayer
-                  videoId={TUTORIAL_SONG_DATA.youtube_id}
-                  currentLyric={timedLyrics[currentIndex].timestamp}
-                  onTimeUpdate={(currentTime) => {
-                    if (
-                      !isLoading &&
-                      timedLyrics.length > 0 &&
-                      !isUserNavigation
-                    ) {
-                      const newIndex = timedLyrics.findIndex(
-                        (lyric) =>
-                          currentTime >= lyric.timestamp.start &&
-                          currentTime < lyric.timestamp.end
-                      )
-                      if (
-                        newIndex !== -1 &&
-                        newIndex !== currentIndex &&
-                        newIndex !== lastAutoUpdatedIndexRef.current
-                      ) {
-                        setCurrentIndex(newIndex)
-                        lastAutoUpdatedIndexRef.current = newIndex
+        {/* 헤더를 제외한 나머지 공간을 메인에 flex-grow로 채움 */}
+        <main className="flex-grow">
+          <div className="flex flex-col lg:flex-row lg:gap-6 lg:max-w-7xl lg:mx-auto">
+            <div className="w-full lg:w-1/2">
+              <div className="w-full lg:sticky lg:top-14">
+                <div className="aspect-video w-full">
+                  {!isLoading && timedLyrics.length > 0 && (
+                    <YouTubePlayer
+                      videoId={TUTORIAL_SONG_DATA.youtube_id}
+                      currentLyric={timedLyrics[currentIndex].timestamp}
+                      onTimeUpdate={(currentTime) => {
+                        if (
+                          !isLoading &&
+                          timedLyrics.length > 0 &&
+                          !isUserNavigation
+                        ) {
+                          const newIndex = timedLyrics.findIndex(
+                            (lyric) =>
+                              currentTime >= lyric.timestamp.start &&
+                              currentTime < lyric.timestamp.end
+                          )
+                          if (
+                            newIndex !== -1 &&
+                            newIndex !== currentIndex &&
+                            newIndex !== lastAutoUpdatedIndexRef.current
+                          ) {
+                            setCurrentIndex(newIndex)
+                            lastAutoUpdatedIndexRef.current = newIndex
+                          }
+                        }
+                      }}
+                      isUserNavigation={isUserNavigation}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="relative w-full lg:w-1/2 bg-gray-900 flex flex-col">
+              {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black z-50">
+                  <MusicLoading />
+                </div>
+              )}
+              {!isLoading && (
+                <div className="flex-grow overflow-auto">
+                  <LyricsCard
+                    lyrics={timedLyrics}
+                    currentIndex={currentIndex}
+                    onIndexChange={(newIndex) => {
+                      setIsUserNavigation(true)
+                      setCurrentIndex(newIndex)
+                      if (navigationTimeoutRef.current) {
+                        clearTimeout(navigationTimeoutRef.current)
                       }
-                    }
-                  }}
-                  isUserNavigation={isUserNavigation}
-                />
+                      navigationTimeoutRef.current = setTimeout(() => {
+                        setIsUserNavigation(false)
+                      }, 500)
+                    }}
+                  />
+                </div>
               )}
             </div>
           </div>
-        </div>
-
-        <div className="w-full lg:w-1/2 bg-gray-900 lg:min-h-screen flex flex-col">
-          {isLoading ? (
-            <LoadingSpinner />
-          ) : (
-            <div className="flex-grow overflow-auto">
-              <LyricsCard
-                lyrics={timedLyrics}
-                currentIndex={currentIndex}
-                onIndexChange={(newIndex) => {
-                  setIsUserNavigation(true)
-                  setCurrentIndex(newIndex)
-                  if (navigationTimeoutRef.current) {
-                    clearTimeout(navigationTimeoutRef.current)
-                  }
-                  navigationTimeoutRef.current = setTimeout(() => {
-                    setIsUserNavigation(false)
-                  }, 500)
-                }}
-              />
-            </div>
-          )}
-        </div>
+        </main>
       </div>
     </>
   )

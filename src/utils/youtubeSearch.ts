@@ -1,4 +1,3 @@
-// utils/youtubeSearch.ts
 import {
   YouTubeSearchResult,
   YouTubeSearchResponse,
@@ -7,7 +6,7 @@ import {
 
 const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY
 
-// 공식 채널/영상을 나타내는 키워드
+// 공식 채널/영상으로 판단하는 키워드
 const officialKeywords = [
   'official music video',
   'official video',
@@ -42,7 +41,7 @@ const foreignVersionKeywords = [
   'fr ver',
 ]
 
-function isOfficialMusicVideo(
+export function isOfficialMusicVideo(
   title: string,
   channelTitle: string,
   description: string = ''
@@ -61,7 +60,7 @@ function isOfficialMusicVideo(
     return false
   }
 
-  // "Topic" 채널은 공식 오디오
+  // "Topic" 채널은 공식 오디오로 판단
   if (lowerChannelTitle.includes('- topic')) {
     return true
   }
@@ -99,14 +98,14 @@ export async function searchOfficialMusicVideos(
   if (!query || query.length < 2) return []
 
   try {
-    // 여러 검색 키워드 시도
+    // 여러 검색 쿼리 시도
     const searchQueries = [
       `${query} official music video`,
       `${query} official video`,
       `${query} official mv`,
     ]
 
-    // 각 검색 쿼리에 대해 병렬로 요청
+    // 각 검색 쿼리에 대해 병렬 요청
     const searchPromises = searchQueries.map(async (searchQuery) => {
       const response = await fetch(
         `https://www.googleapis.com/youtube/v3/search?` +
@@ -150,31 +149,30 @@ export async function searchOfficialMusicVideos(
     )
 
     const channelData: YouTubeChannelResponse = await channelResponse.json()
-    const channelCountryMap = new Map(
-      channelData.items?.map((channel) => [
-        channel.id,
-        channel.snippet?.country,
-      ])
-    )
 
     // 결과 필터링 및 변환
     return uniqueItems
       .filter((item) => {
-        const isVerifiedChannel = channelData.items?.find(
+        // 기존 채널 인증 필터를 완화함:
+        // 인증되지 않은 채널이어도 제목/설명에 공식 키워드가 있다면 허용
+        const channelInfo = channelData.items?.find(
           (channel) => channel.id === item.snippet.channelId
-        )?.status?.isLinked
-
-        if (!isVerifiedChannel) return false
-
-        const channelCountry = channelCountryMap.get(item.snippet.channelId)
-        const isOfficial = isOfficialMusicVideo(
-          item.snippet.title,
-          item.snippet.channelTitle,
-          item.snippet.description
         )
+        const isVerifiedChannel = channelInfo?.status?.isLinked
+        if (
+          !isVerifiedChannel &&
+          !isOfficialMusicVideo(
+            item.snippet.title,
+            item.snippet.channelTitle,
+            item.snippet.description
+          )
+        ) {
+          return false
+        }
 
-        if (!isOfficial) return false
+        const channelCountry = channelInfo?.snippet?.country
 
+        // 한국 채널의 경우 외국어 버전 여부 체크
         if (channelCountry === 'KR') {
           return isForeignLanguageVersion(
             item.snippet.title,
@@ -191,7 +189,7 @@ export async function searchOfficialMusicVideos(
         thumbnailUrl: item.snippet.thumbnails.default.url,
         isOfficial: true,
       }))
-      .slice(0, 5) // 최대 5개 결과만 반환
+      .slice(0, 5) // 최대 5개 결과 반환
   } catch (error) {
     console.error('YouTube 검색 중 오류 발생:', error)
     return []
