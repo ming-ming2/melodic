@@ -1,4 +1,3 @@
-// components/home/SearchBar.tsx
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Search, X, ArrowLeft, Loader2, Music } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -173,7 +172,7 @@ export default function SearchBar({
         } else {
           throw new Error('YouTube 자막 없음')
         }
-      } catch (error) {
+      } catch (_) {
         // 2단계: LRClib에서 가사 정보 가져오기 시도
         console.log('LRClib 가사 검색 시도 중...')
         originalLyrics = await fetchLyricsFromLrclib(
@@ -355,7 +354,7 @@ export default function SearchBar({
             {!errorMessage && searchResults.length > 0 && (
               <>
                 <div className="px-4 py-2 text-xs text-gray-400 border-b border-gray-700/50">
-                  "{searchQuery}"와(과) 일치하는 {searchResults.length}개의 결과
+                  &quot;{searchQuery}&quot;와(과) 일치하는 {searchResults.length}개의 결과
                 </div>
                 {searchResults.map((result) => (
                   <button
