@@ -24,7 +24,8 @@ export default function HomePage() {
       </Head>
 
       <AppLayout>
-        <div className="px-4 py-6 space-y-6">
+        {/* 여기에 max-width와 mx-auto 추가하여 중앙 정렬된 컨테이너 만들기 */}
+        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
           {/* 오늘의 추천곡 */}
           <section>
             <h2 className="text-lg font-bold text-white mb-3">오늘의 추천곡</h2>

@@ -42,9 +42,9 @@ export default function TutorialNavigation({
 }: TutorialNavigationProps) {
   return (
     <>
-      {/* 데스크톱 사이드바 */}
+      {/* 데스크톱 사이드바 (큰 화면에서만 표시) */}
       <div
-        className={`w-64 bg-gray-900 border-r border-gray-800 p-6 hidden md:block ${className}`}
+        className={`w-64 bg-gray-900 border-r border-gray-800 p-6 hidden lg:block ${className}`}
       >
         <h2 className="text-xl font-bold text-white mb-8">튜토리얼</h2>
 

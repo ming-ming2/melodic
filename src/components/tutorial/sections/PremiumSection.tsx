@@ -40,26 +40,26 @@ export default function PremiumSection() {
   }
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="text-center mb-8">
+    <div className="container mx-auto flex flex-col items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="text-center mb-12">
         <h2 className="text-2xl font-bold text-white mb-4">프리미엄 멤버십</h2>
         <p className="text-gray-400 max-w-2xl mx-auto">
           프리미엄으로 학습의 차원을 높이세요.
         </p>
       </div>
 
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex items-center justify-center w-full max-w-2xl">
         {/* 데스크톱 화살표 */}
         <button
           onClick={handlePrev}
-          className="hidden md:block absolute left-0 z-10 p-2 text-gray-400 hover:text-white"
+          className="absolute left-0 z-10 p-2 text-gray-400 hover:text-white -translate-x-12"
         >
           <ChevronLeft className="w-8 h-8" />
         </button>
 
         <button
           onClick={handleNext}
-          className="hidden md:block absolute right-0 z-10 p-2 text-gray-400 hover:text-white"
+          className="absolute right-0 z-10 p-2 text-gray-400 hover:text-white translate-x-12"
         >
           <ChevronRight className="w-8 h-8" />
         </button>
@@ -84,48 +84,57 @@ export default function PremiumSection() {
                   className={`
                     ${plan.color} 
                     rounded-2xl 
-                    p-6 
+                    p-8 
                     shadow-lg
                     w-full
+                    flex flex-col
+                    min-h-[400px]
                   `}
                 >
                   <div className="flex items-center justify-center mb-6">
                     {index === 1 && (
-                      <Crown className="w-8 h-8 text-yellow-500 mr-2" />
+                      <Crown className="w-10 h-10 text-yellow-500 mr-2" />
                     )}
-                    <h3 className="text-xl font-bold text-white">
+                    <h3 className="text-2xl font-bold text-white">
                       {plan.type}
                     </h3>
                   </div>
 
-                  <div className="space-y-3 mb-6">
+                  <div className="space-y-4 mb-8 flex-grow">
                     {plan.features.map((feature, featureIndex) => (
-                      <div
+                      <motion.div
                         key={featureIndex}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: featureIndex * 0.1 }}
                         className="flex items-center gap-3"
                       >
-                        <Check className="w-5 h-5 text-green-500" />
-                        <span className="text-white">{feature}</span>
-                      </div>
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent-500/20 flex items-center justify-center">
+                          <Check className="w-4 h-4 text-accent-400" />
+                        </div>
+                        <span className="text-white text-lg">{feature}</span>
+                      </motion.div>
                     ))}
                   </div>
 
-                  {/* {index === 1 && (
-                    <div className="text-center text-gray-300 mb-4">
+                  {index === 1 && (
+                    <div className="text-center text-yellow-300 mb-4">
                       첫 달 50% 할인 중!
                     </div>
-                  )} */}
+                  )}
 
                   <button
                     className={`
                     w-full 
-                    py-3 
+                    py-4 
                     rounded-lg 
+                    font-medium
                     ${
                       index === 0
                         ? 'bg-gray-700 text-white'
                         : 'bg-accent-600 text-white hover:bg-accent-700'
                     }
+                    transition-colors
                   `}
                   >
                     {plan.buttonText}
@@ -137,13 +146,15 @@ export default function PremiumSection() {
         </motion.div>
       </div>
 
-      <div className="flex justify-center mt-6 space-x-2">
+      <div className="flex justify-center mt-8 space-x-3">
         {planDetails.map((_, index) => (
-          <div
+          <button
             key={index}
+            onClick={() => setCurrentPlan(index)}
             className={`
-              w-2 h-2 rounded-full 
+              w-3 h-3 rounded-full 
               ${currentPlan === index ? 'bg-accent-500' : 'bg-gray-700'}
+              transition-colors
             `}
           />
         ))}

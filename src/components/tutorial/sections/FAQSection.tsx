@@ -50,72 +50,77 @@ export default function FAQSection() {
   }
 
   return (
-    <div className="container mx-auto">
-      <div className="text-center mb-12">
-        <h2
-          className="text-3xl font-bold text-white mb-4"
-          style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
-        >
-          {formatKoreanText('자주 묻는 질문')}
-        </h2>
-        <p
-          className="text-gray-400 max-w-2xl mx-auto"
-          style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
-        >
-          {formatKoreanText('멜로딕에 대해 궁금한 점을 여기서 해결해보세요.')}
-        </p>
-      </div>
-
-      <div className="max-w-2xl mx-auto space-y-4">
-        {FAQs.map((faq, index) => (
-          <div
-            key={index}
-            className={`bg-gray-800 rounded-xl overflow-hidden ${faq.isPremium ? 'border border-yellow-500/30' : ''}`}
+    <div className="container mx-auto flex items-center justify-center min-h-full">
+      <div className="w-full max-w-2xl">
+        <div className="text-center mb-12">
+          <h2
+            className="text-3xl font-bold text-white mb-4"
+            style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
           >
-            <button
-              onClick={() => toggleFAQ(index)}
-              className="w-full flex items-start p-5 text-left"
-            >
-              <div className="flex flex-col">
-                {faq.isPremium && (
-                  <span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full mb-1 self-start">
-                    프리미엄
-                  </span>
-                )}
-                <span
-                  className={`font-medium ${faq.isPremium ? 'text-yellow-500' : 'text-white'}`}
-                  style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
-                >
-                  {formatKoreanText(faq.question)}
-                </span>
-              </div>
-              <ChevronDown
-                className={`w-5 h-5 transition-transform ml-auto ${openFAQ === index ? 'rotate-180' : ''}`}
-              />
-            </button>
+            {formatKoreanText('자주 묻는 질문')}
+          </h2>
+          <p
+            className="text-gray-400 max-w-2xl mx-auto"
+            style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
+          >
+            {formatKoreanText('멜로딕에 대해 궁금한 점을 여기서 해결해보세요.')}
+          </p>
+        </div>
 
-            <AnimatePresence>
-              {openFAQ === index && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div
-                    className="p-5 pt-0 text-gray-400"
+        <div className="space-y-4">
+          {FAQs.map((faq, index) => (
+            <div
+              key={index}
+              className={`bg-gray-800 rounded-xl overflow-hidden ${faq.isPremium ? 'border border-yellow-500/30' : ''}`}
+            >
+              <button
+                onClick={() => toggleFAQ(index)}
+                className="w-full flex items-start p-5 text-left"
+              >
+                <div className="flex flex-col">
+                  {faq.isPremium && (
+                    <span className="text-xs bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded-full mb-1 self-start">
+                      프리미엄
+                    </span>
+                  )}
+                  <span
+                    className={`font-medium ${faq.isPremium ? 'text-yellow-500' : 'text-white'}`}
                     style={{
                       wordBreak: 'keep-all',
                       overflowWrap: 'break-word',
                     }}
                   >
-                    {formatKoreanText(faq.answer)}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ))}
+                    {formatKoreanText(faq.question)}
+                  </span>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform ml-auto ${openFAQ === index ? 'rotate-180' : ''}`}
+                />
+              </button>
+
+              <AnimatePresence>
+                {openFAQ === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div
+                      className="p-5 pt-0 text-gray-400"
+                      style={{
+                        wordBreak: 'keep-all',
+                        overflowWrap: 'break-word',
+                      }}
+                    >
+                      {formatKoreanText(faq.answer)}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -63,17 +63,18 @@ export default function IntroSection() {
   }
 
   return (
-    <div className="container mx-auto px-2 flex flex-col">
-      <div className="text-center mb-4">
+    <div className="container mx-auto flex flex-col items-center justify-center h-full min-h-[calc(100vh-200px)]">
+      <div className="text-center mb-8">
         <Image
           src="/logo.png"
           alt="Melodic 로고"
           width={80}
           height={40}
-          className="mx-auto mb-2"
+          className="mx-auto mb-4"
         />
+        <h2 className="text-2xl font-bold text-white mb-4">멜로딕 시작하기</h2>
         <p
-          className="text-sm text-gray-400 max-w-xl mx-auto"
+          className="text-gray-400 max-w-xl mx-auto"
           style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
         >
           {formatKoreanText(
@@ -82,8 +83,7 @@ export default function IntroSection() {
         </p>
       </div>
 
-      {/* 드래그 가능한 영역을 flex-1 중앙 정렬 대신 상단에 배치 */}
-      <div className="relative mb-4">
+      <div className="relative w-full max-w-lg mx-auto mb-8">
         <motion.div
           drag="x"
           dragElastic={0.5}
@@ -92,7 +92,7 @@ export default function IntroSection() {
             if (offset.x < -50) handleNext()
             else if (offset.x > 50) handlePrev()
           }}
-          className="w-full max-w-md mx-auto relative"
+          className="w-full relative"
         >
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
@@ -107,18 +107,18 @@ export default function IntroSection() {
                 duration: 0.2,
                 ease: 'easeInOut',
               }}
-              className="w-full bg-gray-800 rounded-xl p-6 text-center relative"
+              className="w-full bg-gray-800 rounded-xl p-8 text-center relative"
             >
               <div className="mb-6 flex justify-center">
                 {React.createElement(serviceHighlights[currentHighlight].icon, {
-                  className: 'w-12 h-12 text-accent-500',
+                  className: 'w-16 h-16 text-accent-500',
                 })}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-3">
+              <h3 className="text-2xl font-semibold text-white mb-4">
                 {serviceHighlights[currentHighlight].title}
               </h3>
               <p
-                className="text-gray-400 text-sm leading-relaxed"
+                className="text-gray-400 text-lg leading-relaxed"
                 style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
               >
                 {formatKoreanText(
@@ -129,28 +129,32 @@ export default function IntroSection() {
           </AnimatePresence>
         </motion.div>
 
-        {/* 데스크톱용 화살표 버튼 */}
+        {/* 네비게이션 버튼 */}
         <button
           onClick={handlePrev}
-          className="hidden md:block absolute left-0 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-12 p-2 text-gray-400 hover:text-white"
         >
           <ChevronLeft className="w-8 h-8" />
         </button>
         <button
           onClick={handleNext}
-          className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-white"
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-12 p-2 text-gray-400 hover:text-white"
         >
           <ChevronRight className="w-8 h-8" />
         </button>
       </div>
 
-      <div className="flex justify-center mt-2 space-x-2">
+      <div className="flex justify-center mt-4 space-x-2">
         {serviceHighlights.map((_, index) => (
           <div
             key={index}
-            className={`w-2 h-2 rounded-full ${
+            className={`w-3 h-3 rounded-full cursor-pointer ${
               currentHighlight === index ? 'bg-accent-500' : 'bg-gray-700'
             }`}
+            onClick={() => {
+              setDirection(index > currentHighlight ? 1 : -1)
+              setCurrentHighlight(index)
+            }}
           />
         ))}
       </div>

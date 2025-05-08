@@ -40,8 +40,10 @@ const PracticeSection = () => {
 
   // 기본 개요 화면
   return (
-    <div className="w-full">
-      <FeatureSections onFeatureSelect={handleFeatureSelect} />
+    <div className="w-full flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="max-w-4xl w-full mx-auto">
+        <FeatureSections onFeatureSelect={handleFeatureSelect} />
+      </div>
     </div>
   )
 }

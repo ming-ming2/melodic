@@ -73,21 +73,19 @@ export default function TutorialPage() {
       {/* 프로그레스 바 */}
       <TutorialProgressBar totalSteps={totalSteps} currentStep={currentStep} />
 
-      {/* 모바일 수평 스크롤 네비게이션 */}
-      <div className="block md:hidden">
-        <TutorialStepNavigation
-          steps={TUTORIAL_STEPS}
-          currentStep={currentStep}
-          onStepChange={setCurrentStep}
-        />
-      </div>
+      {/* 수평 스크롤 네비게이션 (lg 브레이크포인트 미만에서 표시) */}
+      <TutorialStepNavigation
+        steps={TUTORIAL_STEPS}
+        currentStep={currentStep}
+        onStepChange={setCurrentStep}
+      />
 
-      {/* 데스크톱 사이드바 네비게이션 */}
+      {/* 데스크톱 사이드바 네비게이션과 콘텐츠 영역 */}
       <div className="flex flex-1">
         <TutorialNavigation
           currentStep={currentStep}
           onStepChange={setCurrentStep}
-          className="hidden md:block"
+          className="hidden lg:block"
         />
 
         {/* 메인 콘텐츠 영역 */}

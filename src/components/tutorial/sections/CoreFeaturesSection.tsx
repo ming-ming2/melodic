@@ -1,7 +1,7 @@
 // components/tutorial/sections/CoreFeaturesSection.tsx
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { BookOpen, Music, Grid, Repeat, Star, FileText } from 'lucide-react'
+import { Book, Music, Grid, Repeat, Star, FileText } from 'lucide-react'
 
 interface CoreFeaturesProps {
   onPremiumFeatureClick: () => void
@@ -9,7 +9,7 @@ interface CoreFeaturesProps {
 
 const FEATURES = [
   {
-    icon: BookOpen,
+    icon: Book,
     title: '상세 가사 분석',
     description: '노래의 각 문장을 깊이 있게 분석합니다.',
     isPremium: false,
@@ -46,7 +46,7 @@ const FEATURES = [
   },
 ]
 
-// IntroSection과 동일하게 줄바꿈 처리를 위한 함수
+// 줄바꿈 처리를 위한 함수
 function formatKoreanText(text: string) {
   return text.replace(/([.?!])\s+/g, '$1\u00A0')
 }
@@ -57,23 +57,23 @@ export default function CoreFeaturesSection({
   const [hoveredFeature, setHoveredFeature] = useState<number | null>(null)
 
   return (
-    <div className="container mx-auto px-4">
-      <div className="text-center mb-6">
+    <div className="container mx-auto flex flex-col items-center justify-center h-full min-h-[calc(100vh-200px)] py-8">
+      <div className="text-center mb-12">
         <h2
-          className="text-xl md:text-2xl font-bold text-white mb-3"
+          className="text-2xl font-bold text-white mb-4"
           style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
         >
           {formatKoreanText('멜로딕의 핵심 기능')}
         </h2>
         <p
-          className="text-sm md:text-base text-gray-400 max-w-xl mx-auto"
+          className="text-gray-400 max-w-2xl mx-auto"
           style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
         >
           {formatKoreanText('음악을 통해 언어를 배우는 가장 즐거운 방법')}
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {FEATURES.map((feature, index) => (
           <motion.div
             key={index}
@@ -84,46 +84,51 @@ export default function CoreFeaturesSection({
               type: 'spring',
               stiffness: 300,
             }}
+            whileHover={{
+              scale: 1.05,
+              transition: { duration: 0.2 },
+            }}
             onHoverStart={() => setHoveredFeature(index)}
             onHoverEnd={() => setHoveredFeature(null)}
+            onClick={feature.isPremium ? onPremiumFeatureClick : undefined}
             className={`
               relative 
-              p-3 
+              p-6 
               rounded-xl 
               border 
               transition-all 
               duration-300
+              cursor-pointer
               ${
                 hoveredFeature === index
-                  ? 'bg-gray-800 border-accent-600 shadow-lg'
-                  : 'bg-gray-900 border-gray-800'
+                  ? 'bg-gray-800 border-accent-600 shadow-lg shadow-accent-500/10'
+                  : feature.isPremium
+                    ? 'bg-gray-900 border-yellow-600/30'
+                    : 'bg-gray-900 border-gray-800'
               }
             `}
           >
-            <div className="flex items-center mb-2">
+            <div className="flex flex-col items-center text-center mb-4">
               <feature.icon
                 className={`
-                  w-5 h-5 mr-2 
+                  w-12 h-12 mb-4
                   ${feature.isPremium ? 'text-yellow-500' : 'text-accent-500'}
                 `}
               />
-              <h3 className="text-xs md:text-sm font-semibold text-white">
+              <h3 className="text-lg font-bold text-white mb-2">
                 {feature.title}
               </h3>
-            </div>
-            <p
-              className="text-xs text-gray-400 mb-2"
-              style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
-            >
-              {formatKoreanText(feature.description)}
-            </p>
-            {feature.isPremium && (
-              <button
-                onClick={onPremiumFeatureClick}
-                className="absolute top-2 right-2 text-yellow-500 hover:text-yellow-400"
+              <p
+                className="text-gray-300"
+                style={{ wordBreak: 'keep-all', overflowWrap: 'break-word' }}
               >
-                <Star className="w-4 h-4" fill="currentColor" />
-              </button>
+                {formatKoreanText(feature.description)}
+              </p>
+            </div>
+            {feature.isPremium && (
+              <div className="absolute top-2 right-2 text-yellow-500">
+                <Star className="w-5 h-5" fill="currentColor" />
+              </div>
             )}
           </motion.div>
         ))}

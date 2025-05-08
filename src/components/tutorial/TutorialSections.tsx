@@ -6,6 +6,7 @@ import CoreFeaturesSection from './sections/CoreFeaturesSection'
 import PremiumSection from './sections/PremiumSection'
 import PracticeSection from './sections/PracticeSection'
 import FAQSection from './sections/FAQSection'
+import { useDevice } from '@/contexts/DeviceContext'
 
 interface TutorialSectionsProps {
   currentStep: number
@@ -16,6 +17,9 @@ export default function TutorialSections({
   currentStep,
   onPremiumFeatureClick,
 }: TutorialSectionsProps) {
+  const { deviceType } = useDevice()
+  const isTabletOrMobile = deviceType === 'mobile' || deviceType === 'tablet'
+
   const renderSection = () => {
     switch (currentStep) {
       case 0:
@@ -46,7 +50,9 @@ export default function TutorialSections({
         stiffness: 300,
         damping: 30,
       }}
-      className={`h-full overflow-y-auto ${currentStep === 2 ? 'p-0' : 'p-8'}`} // 실습 단계일 때만 패딩 제거
+      className={`h-full overflow-y-auto ${
+        currentStep === 2 ? 'p-0' : isTabletOrMobile ? 'p-4' : 'p-8'
+      }`}
     >
       {renderSection()}
     </motion.div>

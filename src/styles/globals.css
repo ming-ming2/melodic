@@ -14,10 +14,38 @@ body {
   .text-shadow {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
+
+  /* 태블릿 전용 스타일 추가 */
+  .tablet-layout {
+    @media (min-width: 768px) and (max-width: 1199px) {
+      display: block !important;
+    }
+  }
+
+  /* 태블릿 사이즈에서 강제로 모바일 레이아웃 적용 */
+  .tablet-force-mobile {
+    @media (min-width: 768px) and (max-width: 1199px) {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+  }
 }
 
 @media (orientation: portrait) {
   .force-vertical {
     flex-direction: column !important;
+  }
+}
+
+/* 태블릿 전용 미디어 쿼리 추가 */
+@media (min-width: 768px) and (max-width: 1199px) {
+  /* 태블릿에서 숨기는 요소 */
+  .tablet-hidden {
+    display: none !important;
+  }
+
+  /* 태블릿에서만 표시하는 요소 */
+  .tablet-only {
+    display: block !important;
   }
 }

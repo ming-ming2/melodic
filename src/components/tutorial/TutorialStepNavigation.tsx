@@ -46,7 +46,7 @@ export default function TutorialStepNavigation({
   return (
     <div
       ref={scrollContainerRef}
-      className="w-full overflow-x-auto py-2 bg-gray-900"
+      className="w-full overflow-x-auto py-2 bg-gray-900 block lg:hidden"
       style={{
         scrollSnapType: 'x mandatory',
         WebkitOverflowScrolling: 'touch',
